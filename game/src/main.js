@@ -227,11 +227,12 @@ function draw() {
       yacht,
       input,
       time,
-      sun: { x: 900, y: 250 },
+      sun: { x: 258, y: 168 },
+      hideLabels: state.hideLabels || state.screen === 'win' || state.screen === 'lose',
     });
   } else if (state.day) {
     // On the title card the desert shows behind the menu, with the lens and a beacon for scale.
-    drawArena(ctx, { day: state.day, yacht, input, time, sun: { x: 900, y: 250 }, hideSpirits: true });
+    drawArena(ctx, { day: state.day, yacht, input, time, sun: { x: 258, y: 168 }, hideSpirits: true, hideLabels: true });
     drawStorm(ctx, state.day.stormX, time, 0.2);
   }
 
@@ -254,11 +255,35 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-// A title-card desert, so the menu is never an empty backdrop.
+// A title-card desert: the yacht on a lit crest, a glass network already glowing below it.
 newDay(1);
 state.screen = 'title';
-yacht.x = 470;
-yacht.y = 560;
+yacht.x = 300;
+yacht.y = 700;
+const hero = state.day;
+const heroSource = hero.source;
+const heroB1 = hero.ports[0];
+for (let i = 1; i <= 14; i += 1) {
+  const t = i / 14;
+  hero.network.add(
+    heroSource.x + (heroB1.x - heroSource.x) * (t - 1 / 14),
+    heroSource.y + (heroB1.y - heroSource.y) * (t - 1 / 14) + Math.sin(t * 3) * 12,
+    heroSource.x + (heroB1.x - heroSource.x) * t,
+    heroSource.y + (heroB1.y - heroSource.y) * t + Math.sin(t * 3) * 12,
+    'amber',
+  );
+}
+for (let i = 1; i <= 8; i += 1) {
+  const t = i / 8;
+  hero.network.add(
+    heroSource.x + 40 + t * 180,
+    heroSource.y + 90 + t * 60,
+    heroSource.x + 40 + (t - 1 / 8) * 180,
+    heroSource.y + 90 + (t - 1 / 8) * 60,
+    'blue',
+  );
+}
+hero.network.rebuild();
 
 window.addEventListener('resize', () => {
   canvas.style.width = '100%';

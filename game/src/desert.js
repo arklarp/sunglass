@@ -15,21 +15,21 @@ export function drawSky(ctx, time, phase) {
   ctx.fillRect(0, 0, ARENA.w, ARENA.h);
 
   // Sun: low on the horizon, bloomed, with a thin corona that breathes.
-  const sunX = 900;
-  const sunY = 250;
-  const bloom = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 420);
-  bloom.addColorStop(0, 'rgba(255,226,170,0.55)');
+  const sunX = 258;
+  const sunY = 168;
+  const bloom = ctx.createRadialGradient(sunX, sunY, 8, sunX, sunY, 300);
+  bloom.addColorStop(0, 'rgba(255,226,170,0.5)');
   bloom.addColorStop(0.25, 'rgba(255,170,110,0.22)');
   bloom.addColorStop(1, 'rgba(255,140,90,0)');
   ctx.fillStyle = bloom;
-  ctx.fillRect(sunX - 430, sunY - 430, 860, 860);
+  ctx.fillRect(sunX - 300, sunY - 300, 600, 600);
   ctx.fillStyle = PALETTE.sun;
   ctx.beginPath();
-  ctx.arc(sunX, sunY, 88, 0, Math.PI * 2);
+  ctx.arc(sunX, sunY, 58, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = PALETTE.sunCore;
   ctx.beginPath();
-  ctx.arc(sunX, sunY - 6, 70, 0, Math.PI * 2);
+  ctx.arc(sunX, sunY - 4, 46, 0, Math.PI * 2);
   ctx.fill();
 
   // Long raking light across the sky: fine lines that make the air feel thick.
@@ -49,10 +49,11 @@ export function drawSky(ctx, time, phase) {
 // Dune bands, far to near: each is a filled silhouette from the seeded height function.
 export function drawDunes(ctx, phase, time) {
   const bands = [
-    { base: 470, amp: 0.55, colour: '#c98a4e', shade: 0.18, speed: 0.06 },
-    { base: 545, amp: 0.75, colour: '#dd9d5c', shade: 0.24, speed: 0.12 },
-    { base: 625, amp: 1.0, colour: '#eab071', shade: 0.3, speed: 0.2 },
-    { base: 720, amp: 1.25, colour: '#f2c184', shade: 0.22, speed: 0.3 },
+    { base: 452, amp: 0.5, colour: '#8a5a3a', shade: 0.34, speed: 0.05, ripple: 0.10 },
+    { base: 528, amp: 0.7, colour: '#a86c42', shade: 0.40, speed: 0.1, ripple: 0.13 },
+    { base: 606, amp: 0.95, colour: '#c1854c', shade: 0.46, speed: 0.18, ripple: 0.17 },
+    { base: 700, amp: 1.2, colour: '#dba05c', shade: 0.34, speed: 0.26, ripple: 0.2 },
+    { base: 782, amp: 1.3, colour: '#efbf7a', shade: 0.22, speed: 0.34, ripple: 0.14 },
   ];
   bands.forEach((band, index) => {
     ctx.beginPath();
@@ -109,11 +110,25 @@ export function drawStorm(ctx, wallX, time, intensity) {
   if (wallX > ARENA.w + 40) return;
   ctx.save();
   const wall = ctx.createLinearGradient(wallX, 0, ARENA.w, 0);
-  wall.addColorStop(0, 'rgba(26,19,48,0.96)');
-  wall.addColorStop(0.25, 'rgba(32,22,58,0.9)');
-  wall.addColorStop(1, 'rgba(16,10,28,0.98)');
+  wall.addColorStop(0, 'rgba(120,74,60,0.97)');
+  wall.addColorStop(0.18, 'rgba(92,54,72,0.96)');
+  wall.addColorStop(0.55, 'rgba(58,34,64,0.97)');
+  wall.addColorStop(1, 'rgba(24,14,34,0.99)');
   ctx.fillStyle = wall;
   ctx.fillRect(wallX, 0, ARENA.w - wallX, ARENA.h);
+
+  // The face of the wall: vertical sand columns churning, brighter near the edge.
+  for (let i = 0; i < 26; i += 1) {
+    const x = wallX + 8 + (i * 37) % Math.max(30, ARENA.w - wallX - 20);
+    const width = 10 + (i % 5) * 9;
+    const drift = Math.sin(time * 1.6 + i) * 10;
+    const columnGrad = ctx.createLinearGradient(x, 0, x, ARENA.h);
+    columnGrad.addColorStop(0, 'rgba(196,132,90,0.16)');
+    columnGrad.addColorStop(0.5, 'rgba(150,96,110,0.10)');
+    columnGrad.addColorStop(1, 'rgba(80,44,70,0.05)');
+    ctx.fillStyle = columnGrad;
+    ctx.fillRect(x + drift, 0, width, ARENA.h);
+  }
 
   // Billows along the edge, so the wall is weather and not a rectangle.
   for (let i = 0; i < 16; i += 1) {

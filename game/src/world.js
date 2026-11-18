@@ -11,7 +11,7 @@ export class Day {
     this.spec = DAYS[Math.min(DAYS.length - 1, number - 1)];
     this.rng = rng;
     this.relics = relics || [];
-    this.source = { x: 210, y: 470 };
+    this.source = { x: 214, y: 420 };
     this.ports = [];
     this.stormX = ARENA.w + STORM.startDistance;
     this.time = 0;
@@ -53,9 +53,9 @@ export class Day {
         maxHp: 900,
         phase: 1,
         phases: 3,
-        x: ARENA.w - 300,
-        y: 430,
-        size: 74,
+        x: ARENA.w - 380,
+        y: 500,
+        size: 120,
         hitFlash: 0,
         alive: true,
       }

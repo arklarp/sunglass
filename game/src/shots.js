@@ -55,10 +55,18 @@ export function stageShot(name, ctx) {
     fuse(day.network, b2.x, b2.y, b3.x, b3.y, 'red', 16);
     fuse(day.network, b1.x, b1.y, b3.x - 60, b3.y + 90, 'blue', 14);
     fuse(day.network, b2.x - 40, b2.y + 30, b1.x + 30, b3.y - 20, 'amber', 12);
-    // Dead-end veins: the desert keeps every path ever drawn, so let the glass fill the frame.
+    // A dense stained-glass web: trunks, branches and dead-end veins across the dunes.
     fuse(day.network, b1.x - 30, b1.y + 60, b1.x - 210, b1.y + 190, 'amber', 10);
     fuse(day.network, src.x + 120, src.y + 60, src.x + 80, src.y + 210, 'blue', 8);
-    fuse(day.network, b3.x - 120, b3.y + 120, b3.x - 320, b3.y + 170, 'amber', 10);
+    fuse(day.network, b3.x - 120, b3.y + 120, b3.x - 330, b3.y + 180, 'amber', 10);
+    fuse(day.network, src.x, src.y, src.x + 90, src.y + 170, 'blue', 9);
+    fuse(day.network, src.x + 90, src.y + 170, src.x + 300, src.y + 210, 'blue', 9);
+    fuse(day.network, src.x + 300, src.y + 210, src.x + 430, src.y + 130, 'amber', 9);
+    fuse(day.network, b1.x, b1.y, b1.x + 150, b1.y - 120, 'amber', 9);
+    fuse(day.network, b1.x + 150, b1.y - 120, b1.x + 330, b1.y - 90, 'amber', 8);
+    fuse(day.network, b2.x, b2.y, b2.x + 130, b2.y + 150, 'red', 9);
+    fuse(day.network, b2.x + 130, b2.y + 150, b2.x + 300, b2.y + 210, 'red', 8);
+    fuse(day.network, b3.x, b3.y, b3.x - 40, b3.y + 170, 'amber', 8);
     day.network.rebuild();
 
     day.stormX = 1030;
@@ -69,9 +77,9 @@ export function stageShot(name, ctx) {
     day.boss.phase = 2;
     day.combo = 5;
     day.comboTimer = 2.4;
-    day.popup(940, 300, '+600', '#ffe9a8');
-    day.popup(1010, 470, '+480', '#ffd166');
-    day.popup(860, 250, '+240', '#ffe9a8');
+    day.popup(700, 300, '+600', '#ffe9a8');
+    day.popup(760, 560, '+480', '#ffd166');
+    day.popup(520, 620, '+240', '#ffe9a8');
 
     yacht.x = 620;
     yacht.y = 470;
@@ -90,20 +98,22 @@ export function stageShot(name, ctx) {
     input.mouse.x = yacht.lens.x;
     input.mouse.y = yacht.lens.y;
 
-    day.spirits.forEach((spirit, index) => {
-      if (index === 0) {
-        spirit.x = 700;
-        spirit.y = 330;
-        spirit.eating = true;
-      } else if (index === 1) {
-        spirit.x = 840;
-        spirit.y = 620;
-        spirit.frozen = 1.4;
-      } else {
-        spirit.x = 520;
-        spirit.y = 640;
-        spirit.burn = 0.7;
-      }
+    const spots = [
+      [560, 360, { eating: true }],
+      [640, 560, { frozen: 1.4 }],
+      [470, 640, { burn: 0.7 }],
+      [760, 380, {}],
+      [700, 640, { burn: 0.6 }],
+      [860, 540, { frozen: 1.2 }],
+      [400, 500, {}],
+      [520, 450, { eating: true }],
+    ];
+    spots.forEach(([x, y, flags], index) => {
+      const spirit = day.spirits[index];
+      if (!spirit) return;
+      spirit.x = x;
+      spirit.y = y;
+      Object.assign(spirit, flags);
     });
 
     state.time = 62.4;
@@ -126,7 +136,6 @@ export function stageShot(name, ctx) {
     const cut = day.network.segments[Math.floor(day.network.segments.length / 2)];
     if (cut) cut.hp = 12;
     day.network.rebuild();
-    day.popup(b1.x - 40, b1.y - 60, 'BEACON LIT', '#ffe9a8');
     day.popup(src.x + 220, src.y + 40, 'FUSE GLASS', '#6effd6');
     day.popup(src.x, src.y - 60, 'SUN-LENS', '#ffd166');
     day.popup(b2.x - 30, b2.y - 54, 'AIM HERE', '#ffd166');
@@ -156,6 +165,53 @@ export function stageShot(name, ctx) {
     return;
   }
 
+  if (name === 'win') {
+    // The other end of the arc: the run held, the Storm King broken, the card with grades.
+    state.seed = 11;
+    state.relics = [
+      { id: 'wide', name: 'WIDE LENS', note: 'the beam sinters 25% further' },
+      { id: 'hard', name: 'TEMPERED GLASS', note: 'your paths hold twice as long' },
+      { id: 'ember', name: 'EMBER LENS', note: 'red paths burn spirits twice as fast' },
+    ];
+    state.routeModifier = null;
+    newDay(7);
+    const day = state.day;
+    const src = day.source;
+    day.ports.forEach((port, index) => {
+      fuse(day.network, index === 0 ? src.x : day.ports[index - 1].x, index === 0 ? src.y : day.ports[index - 1].y, port.x, port.y, index === 1 ? 'blue' : 'amber', 15);
+    });
+    day.network.rebuild();
+    day.boss.hp = 0;
+    day.boss.alive = false;
+    day.stormX = 640;
+    day.stormSpeed = 0;
+    yacht.x = 700;
+    yacht.y = 470;
+    yacht.angle = -0.15;
+    yacht.firing = false;
+    input.firing = false;
+    day.ports.forEach((port) => { port.lit = true; });
+
+    state.screen = 'win';
+    state.hideLabels = true;
+    state.score = 23740;
+    state.totalLit = 21;
+    state.glassLength = 4820;
+    state.pathsLost = 1;
+    state.grade = 'S';
+    state.feats = [
+      'The Storm King broken',
+      'Day 7: every beacon lit',
+      'No path lost all day',
+      'Broke the storm early',
+      'Forty paths fused in one storm',
+      'All six relics carried',
+    ];
+    state.time = 104.2;
+    draw();
+    return;
+  }
+
   if (name === 'route') {
     state.seed = 11;
     state.relics = [{ id: 'wide', name: 'WIDE LENS', note: 'the beam sinters 25% further' }];
@@ -180,6 +236,7 @@ export function stageShot(name, ctx) {
   newDay(4);
   const day = state.day;
   state.screen = 'lose';
+  state.hideLabels = true;
   const src = day.source;
   fuse(day.network, src.x, src.y, day.ports[0].x, day.ports[0].y, 'amber', 14);
   day.network.rebuild();

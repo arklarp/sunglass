@@ -58,6 +58,10 @@ export const RELICS = [
   { id: 'echo', name: 'ECHO SPIRE', note: 'every beacon lit doubles your score' },
 ];
 
+export const FONT = '"DejaVu Sans", "Liberation Sans", Arial, sans-serif';
+
+export const font = (size, weight = 700) => `${weight} ${size}px ${FONT}`;
+
 export const PALETTE = {
   skyTop: '#170f2e',
   skyMid: '#3f1f4e',

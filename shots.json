@@ -8,8 +8,8 @@
     "query": "?shot=title&seed=11"
   },
   {
-    "name": "3-verb.jpg",
-    "query": "?shot=verb&seed=11"
+    "name": "3-win.jpg",
+    "query": "?shot=win&seed=11"
   },
   {
     "name": "4-buried.jpg",
