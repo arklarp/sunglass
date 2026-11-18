@@ -261,7 +261,11 @@ function frame(now) {
 newDay(1);
 state.screen = 'title';
 yacht.x = 300;
-yacht.y = 700;
+yacht.y = 706;
+yacht.firing = true;
+yacht.lens.x = 620;
+yacht.lens.y = 764;
+yacht.lastPoint = { x: 470, y: 742 };
 const hero = state.day;
 const heroSource = hero.source;
 const heroB1 = hero.ports[0];
@@ -284,6 +288,10 @@ for (let i = 1; i <= 8; i += 1) {
     heroSource.y + 90 + (t - 1 / 8) * 60,
     'blue',
   );
+}
+for (let i = 1; i <= 10; i += 1) {
+  const t = i / 10;
+  hero.network.add(310 + t * 300, 712 + Math.sin(t * 5) * 14, 310 + (t - 0.1) * 300 + 30, 712 + Math.sin((t - 0.1) * 5) * 14, 'amber');
 }
 hero.network.rebuild();
 

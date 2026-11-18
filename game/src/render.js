@@ -8,6 +8,33 @@ export function drawNetwork(ctx, network, time) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
+  // Closed panes: the stained-glass facet itself, drawn under the glass lines.
+  for (const facet of network.facets || []) {
+    if (facet.length < 3) continue;
+    const colour = facet.colour === 'red' ? '255,106,122' : facet.colour === 'blue' ? '121,196,255' : '110,255,214';
+    ctx.beginPath();
+    facet.forEach(([x, y], index) => (index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+    ctx.closePath();
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = `rgb(${colour})`;
+    ctx.fill();
+    // A lighter inner wash, so the pane has depth rather than one flat tint.
+    const cx = facet.reduce((sum, p) => sum + p[0], 0) / facet.length;
+    const cy = facet.reduce((sum, p) => sum + p[1], 0) / facet.length;
+    const wash = ctx.createRadialGradient(cx, cy, 2, cx, cy, 90);
+    wash.addColorStop(0, 'rgba(255,255,255,0.30)');
+    wash.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = wash;
+    ctx.fill();
+    // Lead came on every edge.
+    ctx.globalAlpha = 0.92;
+    ctx.strokeStyle = '#1a1020';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
   // Pass 1: the halo, so a lit network glows across the sand.
   for (const segment of network.segments) {
     if (segment.hp <= 0) continue;
@@ -240,6 +267,7 @@ export function drawBeam(ctx, yacht, input, sun) {
   const target = yacht.lens;
   const colour = input.colour === 'red' ? '255,120,130' : input.colour === 'blue' ? '140,200,255' : '255,240,190';
   ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
   // The shaft: sun to lens, wide at the top and tight at the ground.
   const shaft = ctx.createLinearGradient(sun.x, sun.y, target.x, target.y);
   shaft.addColorStop(0, `rgba(${colour},0.05)`);
@@ -254,12 +282,45 @@ export function drawBeam(ctx, yacht, input, sun) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = `rgba(255,255,255,0.85)`;
-  ctx.lineWidth = 1.6;
+  // The working beam: a hot wide bar of light from the lens to the sand, additive.
+  ctx.lineCap = 'round';
+  const originX = yacht.x + Math.cos(yacht.angle) * 20;
+  const originY = yacht.y + Math.sin(yacht.angle) * 20;
+  const beamGrad = ctx.createLinearGradient(originX, originY, target.x, target.y);
+  beamGrad.addColorStop(0, `rgba(${colour},0.95)`);
+  beamGrad.addColorStop(1, 'rgba(255,255,255,0.95)');
+  ctx.strokeStyle = beamGrad;
+  ctx.lineWidth = 16;
   ctx.beginPath();
-  ctx.moveTo(sun.x, sun.y);
+  ctx.moveTo(originX, originY);
   ctx.lineTo(target.x, target.y);
   ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.98)';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(originX, originY);
+  ctx.lineTo(target.x, target.y);
+  ctx.stroke();
+
+  // Sparks thrown off the beam and a molten tip where the sand turns to glass.
+  for (let i = 0; i < 9; i += 1) {
+    const t = ((Date.now() / 260 + i * 0.37) % 1);
+    const x = originX + (target.x - originX) * t;
+    const y = originY + (target.y - originY) * t + Math.sin(t * 20 + i) * 7;
+    ctx.fillStyle = 'rgba(255,236,180,0.9)';
+    ctx.beginPath();
+    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const tip = ctx.createRadialGradient(target.x, target.y, 2, target.x, target.y, 34);
+  tip.addColorStop(0, 'rgba(255,252,232,1)');
+  tip.addColorStop(0.35, 'rgba(255,180,90,0.75)');
+  tip.addColorStop(1, 'rgba(255,140,70,0)');
+  ctx.fillStyle = tip;
+  ctx.beginPath();
+  ctx.arc(target.x, target.y, 34, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
 
   // Impact: a hot ring and a splash of light where the sand turns to glass.
   ctx.shadowColor = `rgba(${colour},0.9)`;
@@ -291,7 +352,7 @@ export function drawYacht(ctx, yacht, time) {
   ctx.globalAlpha = 1;
 
   ctx.rotate(yacht.angle);
-  ctx.scale(1.75, 1.75);
+  ctx.scale(3.2, 3.2);
   // Hull: a long dune-runner with a runner ski on each side.
   ctx.fillStyle = '#2a1a12';
   ctx.beginPath();
@@ -424,125 +485,131 @@ export function drawBoss(ctx, boss, time) {
   const size = boss.size;
   ctx.save();
   ctx.translate(boss.x, boss.y);
-  const pulse = 0.5 + 0.5 * Math.sin(time * 2.2);
 
-  // The storm he carries: a dark churn of sand and cloud around the figure.
-  const aura = ctx.createRadialGradient(0, 0, size * 0.4, 0, 0, size * 2.4);
-  aura.addColorStop(0, 'rgba(120,70,74,0.4)');
-  aura.addColorStop(0.5, 'rgba(60,34,64,0.22)');
-  aura.addColorStop(1, 'rgba(20,10,28,0)');
-  ctx.fillStyle = aura;
+  // Base: he fades into the storm he came from.
+  const base = ctx.createLinearGradient(0, size * 0.3, 0, size * 1.9);
+  base.addColorStop(0, 'rgba(96,56,60,0.55)');
+  base.addColorStop(1, 'rgba(60,32,52,0)');
+  ctx.fillStyle = base;
   ctx.beginPath();
-  ctx.arc(0, 0, size * 2.6, 0, Math.PI * 2);
+  ctx.ellipse(0, size * 1.1, size * 1.05, size * 0.85, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Swirling sand arms: two thick curves that never stop moving.
+  // The body: bands of swirling sand, dark at the edges, each with its own noise.
+  for (let band = 0; band < 22; band += 1) {
+    const t = band / 21;
+    const y = -size * 0.95 + t * size * 1.95;
+    const halfWidth = size * (0.16 + t * 0.62) * (1 - Math.pow(Math.max(0, t - 0.72), 2) * 2.2);
+    const phase = time * 1.1 + band * 0.7;
+    const wobble = Math.sin(phase) * size * 0.05;
+    const dark = 0.55 - t * 0.25;
+    ctx.strokeStyle = `rgba(${Math.round(48 + t * 46)},${Math.round(30 + t * 26)},${Math.round(38 + t * 30)},${0.75 + dark * 0.25})`;
+    ctx.lineWidth = size * 0.11;
+    ctx.beginPath();
+    ctx.moveTo(-halfWidth + wobble, y);
+    ctx.bezierCurveTo(-halfWidth * 0.4, y - size * 0.07, halfWidth * 0.4, y + size * 0.07, halfWidth + wobble, y);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(214,158,112,0.16)';
+    ctx.lineWidth = size * 0.03;
+    ctx.beginPath();
+    ctx.moveTo(-halfWidth * 0.9 + wobble, y - size * 0.035);
+    ctx.bezierCurveTo(-halfWidth * 0.3, y - size * 0.1, halfWidth * 0.4, y + size * 0.02, halfWidth * 0.92 + wobble, y - size * 0.03);
+    ctx.stroke();
+  }
+
+  // Shoulders and two arms, reaching for the yacht.
   ctx.lineCap = 'round';
   for (const side of [-1, 1]) {
-    const sweep = Math.sin(time * 1.6 + (side > 0 ? 1.4 : 0)) * 0.5;
-    ctx.strokeStyle = 'rgba(196,138,96,0.55)';
-    ctx.lineWidth = size * 0.34;
+    const reach = Math.sin(time * 1.3 + side) * 0.4;
+    const grad = ctx.createLinearGradient(side * size * 0.3, -size * 0.5, side * size * 1.5, size * 0.4);
+    grad.addColorStop(0, '#8d5c4e');
+    grad.addColorStop(1, 'rgba(120,74,86,0.25)');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = size * 0.3;
     ctx.beginPath();
-    ctx.moveTo(side * size * 0.5, -size * 0.2);
-    ctx.quadraticCurveTo(side * size * 1.1, size * 0.1 + sweep * 30, side * size * 0.85, size * 0.75 + sweep * 20);
+    ctx.moveTo(side * size * 0.3, -size * 0.46);
+    ctx.quadraticCurveTo(side * size * 1.15, -size * 0.2 + reach * 30, side * size * 1.42, size * 0.42 + reach * 40);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(120,72,86,0.5)';
-    ctx.lineWidth = size * 0.16;
+    ctx.strokeStyle = 'rgba(232,178,124,0.2)';
+    ctx.lineWidth = size * 0.08;
     ctx.beginPath();
-    ctx.moveTo(side * size * 0.52, -size * 0.1);
-    ctx.quadraticCurveTo(side * size * 0.95, size * 0.2 + sweep * 24, side * size * 0.7, size * 0.7 + sweep * 16);
-    ctx.stroke();
-  }
-
-  // Torso: a tapered cliff of sand with a torn hem.
-  const body = ctx.createLinearGradient(0, -size * 0.9, 0, size);
-  body.addColorStop(0, '#e0a97e');
-  body.addColorStop(0.45, '#b4766a');
-  body.addColorStop(1, '#5a3346');
-  ctx.fillStyle = body;
-  ctx.beginPath();
-  ctx.moveTo(-size * 0.42, -size * 0.55);
-  ctx.quadraticCurveTo(0, -size * 0.78, size * 0.42, -size * 0.55);
-  ctx.quadraticCurveTo(size * 0.58, size * 0.1, size * 0.34, size * 0.8);
-  for (let i = 0; i <= 6; i += 1) {
-    const t = i / 6;
-    const x = size * (0.34 - t * 0.68);
-    const y = size * (0.8 + Math.sin(t * Math.PI * 3 + time) * 0.08);
-    ctx.lineTo(x, y);
-  }
-  ctx.quadraticCurveTo(-size * 0.58, size * 0.1, -size * 0.42, -size * 0.55);
-  ctx.closePath();
-  ctx.fill();
-
-  // The cracked core: the storm's heart, glowing through the sand.
-  const core = ctx.createRadialGradient(0, -size * 0.05, 4, 0, -size * 0.05, size * 0.42);
-  core.addColorStop(0, boss.hitFlash > 0 ? '#fff6d8' : '#ffc98a');
-  core.addColorStop(0.4, 'rgba(255,150,90,0.75)');
-  core.addColorStop(1, 'rgba(255,120,80,0)');
-  ctx.fillStyle = core;
-  ctx.beginPath();
-  ctx.arc(0, -size * 0.05, size * 0.42, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,214,150,0.85)';
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 7; i += 1) {
-    const angle = (i / 7) * Math.PI * 2 + time * 0.15;
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(angle) * size * 0.12, -size * 0.05 + Math.sin(angle) * size * 0.12);
-    ctx.lineTo(Math.cos(angle) * size * 0.4, -size * 0.05 + Math.sin(angle) * size * 0.4);
+    ctx.moveTo(side * size * 0.32, -size * 0.52);
+    ctx.quadraticCurveTo(side * size * 1.1, -size * 0.3 + reach * 30, side * size * 1.36, size * 0.3 + reach * 40);
     ctx.stroke();
   }
 
-  // Head and crown: a thundercloud brow with lightning teeth.
-  ctx.fillStyle = '#33202e';
+  // Head: darker sand, brow ridge, two burning eyes.
+  ctx.fillStyle = '#3d2430';
   ctx.beginPath();
-  ctx.ellipse(0, -size * 0.72, size * 0.32, size * 0.24, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, -size * 0.86, size * 0.26, size * 0.2, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,196,140,0.35)';
+  ctx.strokeStyle = 'rgba(232,178,124,0.35)';
   ctx.lineWidth = 2;
   ctx.stroke();
-  ctx.strokeStyle = 'rgba(220,230,255,0.9)';
-  ctx.lineWidth = 3;
-  for (let i = 0; i < 5; i += 1) {
-    const x = -size * 0.24 + i * size * 0.12;
-    const height = size * (0.3 + (i % 2) * 0.16) + Math.sin(time * 5 + i) * 4;
+  ctx.shadowColor = 'rgba(255,170,70,0.95)';
+  ctx.shadowBlur = 26;
+  ctx.fillStyle = '#ffd28a';
+  for (const eye of [-1, 1]) {
     ctx.beginPath();
-    ctx.moveTo(x, -size * 0.85);
-    ctx.lineTo(x + size * 0.04, -size * 0.85 - height * 0.6);
-    ctx.lineTo(x + size * 0.08, -size * 0.85 - height * 0.3);
-    ctx.lineTo(x + size * 0.1, -size * 0.85 - height);
+    ctx.ellipse(eye * size * 0.1, -size * 0.87, size * 0.055, size * 0.032, eye * 0.25, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
+  // Crown: jagged gold-white lightning, glowing.
+  ctx.strokeStyle = '#fff3c8';
+  ctx.shadowColor = 'rgba(255,220,140,0.95)';
+  ctx.shadowBlur = 22;
+  for (let i = 0; i < 7; i += 1) {
+    const x = -size * 0.24 + i * size * 0.08;
+    const h = size * (0.26 + (i % 3) * 0.12);
+    ctx.lineWidth = 3.4;
+    ctx.beginPath();
+    ctx.moveTo(x, -size * 1.0);
+    ctx.lineTo(x + size * 0.03, -size * 1.0 - h * 0.55);
+    ctx.lineTo(x + size * 0.07, -size * 1.0 - h * 0.35);
+    ctx.lineTo(x + size * 0.055, -size * 1.0 - h);
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+
+  // Cracked core, hot red where the beam lands.
+  const core = ctx.createRadialGradient(0, -size * 0.12, 3, 0, -size * 0.12, size * 0.3);
+  core.addColorStop(0, '#fff2d6');
+  core.addColorStop(0.35, 'rgba(255,120,90,0.85)');
+  core.addColorStop(1, 'rgba(255,90,70,0)');
+  ctx.fillStyle = core;
+  ctx.beginPath();
+  ctx.arc(0, -size * 0.12, size * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,196,140,0.9)';
+  ctx.lineWidth = 2.2;
+  for (let i = 0; i < 8; i += 1) {
+    const a = (i / 8) * Math.PI * 2 + time * 0.2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * size * 0.08, -size * 0.12 + Math.sin(a) * size * 0.08);
+    ctx.lineTo(Math.cos(a) * size * 0.34, -size * 0.12 + Math.sin(a) * size * 0.34);
     ctx.stroke();
   }
 
-  // Two hot slits where eyes would be: the only warm thing in the face.
-  ctx.shadowColor = 'rgba(255,180,90,0.9)';
-  ctx.shadowBlur = 20;
-  ctx.fillStyle = '#ffdf9f';
-  ctx.beginPath();
-  ctx.ellipse(-size * 0.12, -size * 0.72, size * 0.075, size * 0.03, -0.2, 0, Math.PI * 2);
-  ctx.ellipse(size * 0.11, -size * 0.72, size * 0.075, size * 0.03, 0.2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-
-  // Sand falling off the hem, so he reads as weather and not a statue.
-  ctx.fillStyle = 'rgba(214,160,110,0.5)';
-  for (let i = 0; i < 18; i += 1) {
-    const t = (time * 0.6 + i * 0.11) % 1;
-    const x = Math.sin(i * 2.7) * size * 0.4;
-    ctx.fillRect(x, size * 0.6 + t * size * 0.9, 3, 6);
+  // Sand pouring off him.
+  ctx.fillStyle = 'rgba(220,166,112,0.5)';
+  for (let i = 0; i < 22; i += 1) {
+    const t = (time * 0.55 + i * 0.09) % 1;
+    ctx.fillRect(Math.sin(i * 2.3) * size * 0.55, size * 0.4 + t * size * 1.2, 3, 7);
   }
 
-  // His name and phase sit under him, not in a panel.
+  // His label sits right under him.
   ctx.font = '800 15px "DejaVu Sans", "Liberation Sans", Arial, sans-serif';
   ctx.textAlign = 'center';
-  ctx.strokeStyle = 'rgba(20,10,24,0.85)';
+  ctx.strokeStyle = 'rgba(18,9,20,0.9)';
   ctx.lineWidth = 4;
-  ctx.strokeText(`THE STORM KING · PHASE ${boss.phase}/3`, 0, size * 1.5);
+  const label = `THE STORM KING · PHASE ${boss.phase}/3`;
+  ctx.strokeText(label, 0, size * 1.62);
   ctx.fillStyle = '#ffe9d0';
-  ctx.fillText(`THE STORM KING · PHASE ${boss.phase}/3`, 0, size * 1.5);
+  ctx.fillText(label, 0, size * 1.62);
   ctx.textAlign = 'left';
   ctx.restore();
-  void pulse;
 }
 
 export function drawPopups(ctx, popups) {

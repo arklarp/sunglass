@@ -28,8 +28,15 @@ export function drawTitle(ctx, state) {
   ctx.fillRect(0, 0, ARENA.w, ARENA.h);
 
   ctx.textAlign = 'center';
-  spaced(ctx, 'THE LAST DESERT · SEVEN STORM DAYS', ARENA.w / 2, 70, 4, 13, 800);
-  ctx.fillStyle = '#ffcf8a';
+  ctx.font = font(15, 800);
+  const tag = 'THE LAST DESERT · SEVEN STORM DAYS';
+  ctx.textAlign = 'center';
+  ctx.strokeStyle = 'rgba(20,10,20,0.8)';
+  ctx.lineWidth = 4;
+  ctx.strokeText(tag, ARENA.w / 2, 70);
+  ctx.fillStyle = '#ffcf7a';
+  ctx.fillText(tag, ARENA.w / 2, 70);
+  ctx.textAlign = 'left';
 
   // Logo: bigger, bolder, gold into glass.
   const logo = ctx.createLinearGradient(ARENA.w / 2 - 340, 110, ARENA.w / 2 + 340, 210);
@@ -55,7 +62,7 @@ export function drawTitle(ctx, state) {
   // HOW TO PLAY: wrapped, inside its box.
   const cardW = 780;
   const cardX = ARENA.w / 2 - cardW / 2;
-  panel(ctx, cardX, 252, cardW, 100, 0.9);
+  panel(ctx, cardX, 252, cardW, 122, 0.9);
   ctx.textAlign = 'left';
   ctx.font = font(13, 800);
   ctx.fillStyle = PALETTE.accent;
@@ -63,12 +70,12 @@ export function drawTitle(ctx, state) {
   ctx.font = font(16, 600);
   const lines = wrapText(ctx, 'WASD sails the dune-runner · the mouse aims the crystal lens · hold the button to sinter glass, and drag to draw a path from the sun-lens to every beacon of the day.', cardW - 44, 3);
   ctx.fillStyle = '#fff9ec';
-  lines.forEach((line, index) => ctx.fillText(line, cardX + 22, 298 + index * 19));
+  lines.forEach((line, index) => ctx.fillText(line, cardX + 22, 294 + index * 18));
   ctx.font = font(15, 800);
   ctx.fillStyle = '#b6ffc4';
-  ctx.fillText('WIN  light every beacon', cardX + 22, 354);
+  ctx.fillText('WIN  light every beacon', cardX + 22, 362);
   ctx.fillStyle = '#ff9a9a';
-  ctx.fillText('LOSE  the storm wall reaches you', cardX + 240, 354);
+  ctx.fillText('LOSE  the storm wall reaches you', cardX + 240, 362);
 
   // The feature strip: big digits, one small icon per column.
   const features = [
@@ -79,39 +86,39 @@ export function drawTitle(ctx, state) {
     ['1', 'STORM KING', '#c98aff'],
     ['∞', 'SAME SEED', '#9dffb0'],
   ];
-  panel(ctx, cardX, 362, cardW, 74, 0.86);
+  panel(ctx, cardX, 382, cardW, 74, 0.86);
   features.forEach(([value, label, colour], index) => {
     const x = cardX + 30 + index * (cardW - 60) / features.length;
     ctx.fillStyle = colour;
     ctx.beginPath();
-    ctx.arc(x + 6, 382, 5, 0, Math.PI * 2);
+    ctx.arc(x + 6, 402, 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.font = font(34, 900);
     ctx.fillStyle = '#fff4de';
-    ctx.fillText(value, x, 404);
+    ctx.fillText(value, x, 424);
     ctx.font = font(11, 800);
     ctx.fillStyle = 'rgba(255,244,222,0.62)';
-    ctx.fillText(label, x, 422);
+    ctx.fillText(label, x, 442);
   });
 
   // Omens and the route, side by side.
-  const sideY = 448;
+  const sideY = 468;
   const sideW = 382;
-  panel(ctx, cardX, sideY, sideW, 124, 0.88);
+  panel(ctx, cardX, sideY, sideW, 140, 0.88);
   ctx.font = font(13, 800);
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('OMENS — PRESS 1 2 3', cardX + 22, sideY + 24);
   state.omens.forEach((omen, index) => {
-    const y = sideY + 52 + index * 26;
+    const y = sideY + 48 + index * 30;
     ctx.font = font(15, 800);
     ctx.fillStyle = omen.on ? PALETTE.beacon : 'rgba(255,244,222,0.42)';
     ctx.fillText(`${omen.on ? '◆' : '◇'}  ${index + 1}   ${omen.name}`, cardX + 22, y);
-    fitText(ctx, omen.note, 166, 13, 600);
+    fitText(ctx, omen.note, sideW - 60, 12, 600);
     ctx.fillStyle = 'rgba(255,244,222,0.66)';
-    ctx.fillText(omen.note, cardX + 200, y);
+    ctx.fillText(omen.note, cardX + 44, y + 15);
   });
 
-  panel(ctx, cardX + sideW + 16, sideY, cardW - sideW - 16, 124, 0.88);
+  panel(ctx, cardX + sideW + 16, sideY, cardW - sideW - 16, 140, 0.88);
   const routeX = cardX + sideW + 38;
   ctx.font = font(13, 800);
   ctx.fillStyle = PALETTE.accent;
@@ -146,7 +153,7 @@ export function drawTitle(ctx, state) {
   const pillW = 360;
   ctx.fillStyle = `rgba(255,214,140,${0.2 + pulse * 0.14})`;
   ctx.beginPath();
-  ctx.roundRect(ARENA.w / 2 - pillW / 2, 600, pillW, 54, 27);
+  ctx.roundRect(ARENA.w / 2 - pillW / 2, 624, pillW, 54, 27);
   ctx.fill();
   ctx.strokeStyle = `rgba(255,226,170,${0.55 + pulse * 0.4})`;
   ctx.lineWidth = 2;
@@ -154,10 +161,10 @@ export function drawTitle(ctx, state) {
   ctx.textAlign = 'center';
   ctx.font = font(20, 900);
   ctx.fillStyle = PALETTE.beacon;
-  ctx.fillText('PRESS SPACE TO SAIL', ARENA.w / 2, 636);
+  ctx.fillText('PRESS SPACE TO SAIL', ARENA.w / 2, 660);
   ctx.font = font(12, 600);
   ctx.fillStyle = 'rgba(255,244,222,0.55)';
-  ctx.fillText('R restart  ·  M sound  ·  seeds replay identically', ARENA.w / 2, 672);
+  ctx.fillText('R restart  ·  M sound  ·  seeds replay identically', ARENA.w / 2, 696);
   ctx.textAlign = 'left';
 }
 
@@ -338,7 +345,7 @@ export function drawEnd(ctx, state) {
   ];
   const right = [
     ['PATHS LOST', String(state.pathsLost)],
-    ['RELICS', state.relics.length ? `${state.relics.length} of 6` : 'none'],
+    ['RELICS', state.relics.length ? `${Math.min(6, state.relics.length)} of 6` : 'none'],
     ['SEED', String(state.seed)],
   ];
   const column = (rows, x) => {

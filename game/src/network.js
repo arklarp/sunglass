@@ -15,6 +15,7 @@ export class Network {
     this.ports = ports;              // beacons: {x, y, id, lit, step}
     this.segments = [];
     this.litCount = 0;
+    this.facets = [];   // closed panes the cover fills: [[x,y],...] polygons
   }
 
   add(x1, y1, x2, y2, colour) {

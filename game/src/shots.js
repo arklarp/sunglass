@@ -67,12 +67,23 @@ export function stageShot(name, ctx) {
     fuse(day.network, b2.x, b2.y, b2.x + 130, b2.y + 150, 'red', 9);
     fuse(day.network, b2.x + 130, b2.y + 150, b2.x + 300, b2.y + 210, 'red', 8);
     fuse(day.network, b3.x, b3.y, b3.x - 40, b3.y + 170, 'amber', 8);
+    // Closed panes where the trunks meet, so the web is stained glass and not spaghetti.
+    day.network.facets = [
+      [[src.x + 60, src.y + 10], [b1.x - 30, b1.y + 40], [b1.x - 130, b1.y + 150], [src.x + 40, src.y + 165], [src.x - 20, src.y + 80]],
+      [[b1.x - 30, b1.y + 60], [b1.x + 130, b1.y - 90], [b1.x + 250, b1.y + 10], [b1.x + 120, b1.y + 140]],
+      [[b2.x - 40, b2.y + 40], [b2.x + 90, b2.y + 120], [b2.x + 40, b2.y + 250], [b2.x - 100, b2.y + 140]],
+      [[src.x + 120, src.y + 150], [src.x + 300, src.y + 200], [src.x + 420, src.y + 120], [src.x + 280, src.y + 60]],
+    ];
+    day.network.facets[0].colour = 'amber';
+    day.network.facets[1].colour = 'blue';
+    day.network.facets[2].colour = 'red';
+    day.network.facets[3].colour = 'amber';
     day.network.rebuild();
 
     day.stormX = 1030;
     day.stormSpeed = 80;
-    day.boss.x = 980;
-    day.boss.y = 380;
+    day.boss.x = 810;
+    day.boss.y = 500;
     day.boss.hp = day.boss.maxHp * 0.46;
     day.boss.phase = 2;
     day.combo = 5;
@@ -82,7 +93,7 @@ export function stageShot(name, ctx) {
     day.popup(520, 620, '+240', '#ffe9a8');
 
     yacht.x = 620;
-    yacht.y = 470;
+    yacht.y = 630;
     yacht.vx = 90;
     yacht.vy = -30;
     yacht.angle = -0.25;
@@ -180,6 +191,14 @@ export function stageShot(name, ctx) {
     day.ports.forEach((port, index) => {
       fuse(day.network, index === 0 ? src.x : day.ports[index - 1].x, index === 0 ? src.y : day.ports[index - 1].y, port.x, port.y, index === 1 ? 'blue' : 'amber', 15);
     });
+    day.network.facets = [
+      [[src.x + 40, src.y + 20], [day.ports[0].x - 60, day.ports[0].y + 40], [day.ports[0].x - 160, day.ports[0].y + 160], [src.x, src.y + 150]],
+      [[day.ports[1].x - 90, day.ports[1].y + 30], [day.ports[1].x + 70, day.ports[1].y + 110], [day.ports[1].x - 20, day.ports[1].y + 230], [day.ports[1].x - 170, day.ports[1].y + 120]],
+      [[src.x + 220, src.y + 120], [src.x + 400, src.y + 90], [src.x + 460, src.y + 230], [src.x + 260, src.y + 240]],
+    ];
+    day.network.facets[0].colour = 'amber';
+    day.network.facets[1].colour = 'blue';
+    day.network.facets[2].colour = 'amber';
     day.network.rebuild();
     day.boss.hp = 0;
     day.boss.alive = false;
