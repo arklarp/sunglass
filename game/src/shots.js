@@ -24,6 +24,15 @@ function fuse(network, fromX, fromY, toX, toY, colour, steps = 16) {
 export function stageShot(name, ctx) {
   const { state, yacht, input, draw, newDay } = ctx;
 
+  if (name === 'title') {
+    // The menu itself: how to play, the omens, the route strip and the one call to action.
+    state.screen = 'title';
+    state.time = 3.4;
+    state.seed = 11;
+    draw();
+    return;
+  }
+
   if (name === 'cover') {
     // Day 7: the Storm King on screen at phase 2, a network across the dunes, a chain running.
     state.seed = 11;

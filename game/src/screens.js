@@ -65,16 +65,16 @@ export function drawTitle(ctx, state) {
 
   // How to play: one card, three readable beats.
   const cardW = 760;
-  panel(ctx, ARENA.w / 2 - cardW / 2, 278, cardW, 92, 0.86);
+  panel(ctx, ARENA.w / 2 - cardW / 2, 272, cardW, 100, 0.92);
   ctx.textAlign = 'left';
   ctx.font = `700 11px ${SANS}`;
   ctx.fillStyle = PALETTE.accent;
-  ctx.fillText('HOW TO PLAY', ARENA.w / 2 - cardW / 2 + 20, 300);
-  ctx.font = `600 14px ${SANS}`;
-  ctx.fillStyle = PALETTE.ui;
+  ctx.fillText('HOW TO PLAY', ARENA.w / 2 - cardW / 2 + 22, 296);
+  ctx.font = `600 15px ${SANS}`;
+  ctx.fillStyle = '#fff9ec';
   ctx.fillText('WASD sails the dune-runner · the mouse aims the crystal lens · hold the button to sinter glass.', ARENA.w / 2 - cardW / 2 + 20, 324);
-  ctx.fillText('Drag across the sand to draw a path, and run it from the sun-lens to every beacon of the day.', ARENA.w / 2 - cardW / 2 + 20, 346);
-  ctx.fillStyle = '#9dffb0';
+  ctx.fillText('Drag across the sand to draw a path, and run it from the sun-lens to every beacon of the day.', ARENA.w / 2 - cardW / 2 + 22, 348);
+  ctx.fillStyle = '#b6ffc4';
   ctx.fillText('WIN  light every beacon   ·   LOSE  the storm wall reaches you, or buries one', ARENA.w / 2 - cardW / 2 + 20, 368);
 
   // The feature strip.
@@ -86,7 +86,7 @@ export function drawTitle(ctx, state) {
     ['1', 'STORM KING'],
     ['∞', 'SAME SEED'],
   ];
-  panel(ctx, ARENA.w / 2 - cardW / 2, 380, cardW, 62, 0.8);
+  panel(ctx, ARENA.w / 2 - cardW / 2, 384, cardW, 62, 0.86);
   features.forEach(([value, label], index) => {
     const x = ARENA.w / 2 - cardW / 2 + 34 + index * (cardW - 68) / features.length;
     ctx.font = `800 22px ${SANS}`;
@@ -293,11 +293,18 @@ export function drawEnd(ctx, state) {
   });
 
   const pulse = 0.5 + 0.5 * Math.sin(state.time * 2.4);
-  ctx.globalAlpha = pulse;
+  const pillW = 460;
+  ctx.fillStyle = `rgba(255,214,140,${0.14 + pulse * 0.1})`;
+  ctx.beginPath();
+  ctx.roundRect(ARENA.w / 2 - pillW / 2, 540, pillW, 46, 23);
+  ctx.fill();
+  ctx.strokeStyle = `rgba(255,226,170,${0.45 + pulse * 0.4})`;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
   ctx.textAlign = 'center';
-  ctx.font = `700 15px ${SANS}`;
+  ctx.font = `800 16px ${SANS}`;
   ctx.fillStyle = PALETTE.ui;
-  ctx.fillText('PRESS R TO RUN IT AGAIN · PRESS S FOR THE SAME SEED', ARENA.w / 2, 556);
+  ctx.fillText('PRESS R TO PLAY AGAIN  ·  PRESS S FOR THE SAME SEED', ARENA.w / 2, 568);
   ctx.globalAlpha = 1;
   ctx.textAlign = 'left';
   void RELICS;
