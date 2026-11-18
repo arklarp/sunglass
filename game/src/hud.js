@@ -190,32 +190,32 @@ export function drawHud(ctx, state) {
   });
 
   // ---- Right: route, relics and lens in one panel.
-  const rx = ARENA.w - 268;
+  const rx = ARENA.w - 212;
   const ry = 120;
   const relicLines = relics.length ? Math.min(3, relics.length) : 1;
-  const rightH = 96 + relicLines * 22 + 40;
-  panel(ctx, rx, ry, 252, rightH);
+  const rightH = 88 + relicLines * 18 + 14;
+  panel(ctx, rx, ry, 196, rightH);
   ctx.font = font(13, 800);
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('ROUTE', rx + 18, ry + 26);
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(255,244,222,0.6)';
-  ctx.fillText(`RELICS ${relics.length} of 6`, rx + 234, ry + 26);
+  ctx.fillText(`RELICS ${relics.length}/6`, rx + 178, ry + 26);
   ctx.textAlign = 'left';
 
   for (let i = 0; i < 7; i += 1) {
-    const x = rx + 30 + i * 30;
+    const x = rx + 26 + i * 24;
     const y = ry + 54;
     const here = i + 1 === day.number;
     ctx.fillStyle = i + 1 > day.number ? 'rgba(255,244,222,0.22)' : i + 1 === 7 ? '#ff8f9a' : PALETTE.beacon;
     ctx.beginPath();
-    ctx.arc(x, y, here ? 11 : 7, 0, Math.PI * 2);
+    ctx.arc(x, y, here ? 10 : 6, 0, Math.PI * 2);
     ctx.fill();
     if (here) {
       ctx.strokeStyle = '#fff4de';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(x, y, 16, 0, Math.PI * 2);
+      ctx.arc(x, y, 14, 0, Math.PI * 2);
       ctx.stroke();
       ctx.font = font(11, 800);
       ctx.fillStyle = '#fff4de';
@@ -227,39 +227,39 @@ export function drawHud(ctx, state) {
       ctx.strokeStyle = 'rgba(255,244,222,0.32)';
       ctx.lineWidth = 1.6;
       ctx.beginPath();
-      ctx.moveTo(x + 9, y);
-      ctx.lineTo(x + 24, y);
+      ctx.moveTo(x + 8, y);
+      ctx.lineTo(x + 18, y);
       ctx.stroke();
     }
   }
 
-  const relicY = ry + 112;
+  const relicY = ry + 104;
   if (!relics.length) {
     ctx.font = font(12, 600);
     ctx.fillStyle = 'rgba(255,244,222,0.55)';
-    ctx.fillText('no relics yet — clear a day to draft one', rx + 18, relicY);
+    ctx.fillText('none yet — clear a day', rx + 16, relicY);
   } else {
     relics.slice(0, 3).forEach((relic, index) => {
-      relicIcon(ctx, rx + 26, relicY - 4 + index * 22, ['#6effd6', '#ffd166', '#ff9aa4'][index % 3]);
-      fitText(ctx, relic.name, 206, 13, 700);
+      relicIcon(ctx, rx + 22, relicY - 4 + index * 18, ['#6effd6', '#ffd166', '#ff9aa4'][index % 3]);
+      fitText(ctx, relic.name, 156, 12, 700);
       ctx.fillStyle = '#fff4de';
-      ctx.fillText(relic.name, rx + 42, relicY + index * 22);
+      ctx.fillText(relic.name, rx + 36, relicY + index * 18);
     });
   }
 
-  const lensY = ry + 132 + relicLines * 22;
+  const lensY = ry + 124 + relicLines * 18;
   const colour = input.colour || 'amber';
   const lensColour = colour === 'red' ? PALETTE.glassRed : colour === 'blue' ? PALETTE.glassBlue : PALETTE.glass;
   ctx.fillStyle = lensColour;
   ctx.beginPath();
-  ctx.arc(rx + 26, lensY - 5, 8, 0, Math.PI * 2);
+  ctx.arc(rx + 22, lensY - 5, 7, 0, Math.PI * 2);
   ctx.fill();
   ctx.font = font(13, 800);
   ctx.fillStyle = '#fff4de';
-  ctx.fillText(`LENS ${colour.toUpperCase()}`, rx + 42, lensY);
-  ctx.font = font(11, 600);
-  ctx.fillStyle = 'rgba(255,244,222,0.55)';
-  ctx.fillText(colour === 'red' ? 'burns what touches it' : colour === 'blue' ? 'freezes what touches it' : 'plain glass, no effect', rx + 18, lensY + 18);
+  ctx.fillText(`LENS ${colour.toUpperCase()}`, rx + 36, lensY);
+  ctx.font = font(11, 700);
+  ctx.fillStyle = 'rgba(255,244,222,0.62)';
+  ctx.fillText(colour === 'red' ? 'burns' : colour === 'blue' ? 'freezes' : 'no effect', rx + 36, lensY + 15);
 
   // ---- Bottom-left: hull, pulse, beacons.
   panel(ctx, 16, ARENA.h - 118, 300, 104);
@@ -280,23 +280,23 @@ export function drawHud(ctx, state) {
 
   // ---- Bottom-right: the storm meter, which is the clock.
   const closeness = day.stormCloseness(yacht);
-  panel(ctx, ARENA.w - 268, ARENA.h - 118, 252, 104);
+  panel(ctx, ARENA.w - 212, ARENA.h - 110, 196, 96);
   ctx.font = font(13, 800);
   ctx.fillStyle = closeness > 0.66 ? '#ff8f8f' : PALETTE.accent;
-  ctx.fillText('STORM WALL', ARENA.w - 250, ARENA.h - 94);
+  ctx.fillText('STORM WALL', ARENA.w - 196, ARENA.h - 86);
   ctx.fillStyle = 'rgba(255,244,222,0.18)';
-  ctx.fillRect(ARENA.w - 250, ARENA.h - 86, 218, 12);
-  const wallColour = ctx.createLinearGradient(ARENA.w - 250, 0, ARENA.w - 32, 0);
+  ctx.fillRect(ARENA.w - 196, ARENA.h - 78, 164, 12);
+  const wallColour = ctx.createLinearGradient(ARENA.w - 196, 0, ARENA.w - 32, 0);
   wallColour.addColorStop(0, '#ff9a6a');
   wallColour.addColorStop(1, '#8f6bff');
   ctx.fillStyle = wallColour;
-  ctx.fillRect(ARENA.w - 250, ARENA.h - 86, 218 * closeness, 12);
+  ctx.fillRect(ARENA.w - 196, ARENA.h - 78, 164 * closeness, 12);
   ctx.font = font(22, 900);
   ctx.fillStyle = '#fff4de';
-  ctx.fillText(`${Math.max(0, Math.round(day.stormX - yacht.x))} m`, ARENA.w - 250, ARENA.h - 56);
+  ctx.fillText(`${Math.max(0, Math.round(day.stormX - yacht.x))} m`, ARENA.w - 196, ARENA.h - 48);
   ctx.font = font(11, 600);
   ctx.fillStyle = 'rgba(255,244,222,0.55)';
-  ctx.fillText(boss ? 'the King walks with the wall' : 'the wall never stops', ARENA.w - 250, ARENA.h - 34);
+  ctx.fillText(boss ? 'the King walks with it' : 'it never stops', ARENA.w - 196, ARENA.h - 26);
 
   // ---- Bottom-centre: the keycap bar.
   const keys = [
