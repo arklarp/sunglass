@@ -174,15 +174,19 @@ export function stageShot(name, ctx) {
   const src = day.source;
   fuse(day.network, src.x, src.y, day.ports[0].x, day.ports[0].y, 'amber', 14);
   day.network.rebuild();
-  day.stormX = 500;
-  day.network.consume(470);
+  day.stormX = 470;
+  day.network.consume(440);
   day.ports.forEach((port) => { port.lit = false; });
-  yacht.x = 452;
-  yacht.y = 556;
-  yacht.vx = 30;
+  yacht.x = 560;
+  yacht.y = 566;
+  yacht.angle = 0.5;
+  yacht.vx = 10;
   yacht.alive = false;
   yacht.firing = false;
+  yacht.dust = [];
   input.firing = false;
+  day.popup(yacht.x, yacht.y - 80, 'BURIED', '#ff9a9a');
+  day.popup(yacht.x + 120, yacht.y - 40, 'PATH CUT', '#ff8f9a');
 
   state.score = 5840;
   state.totalLit = 1;

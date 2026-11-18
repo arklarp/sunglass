@@ -190,7 +190,7 @@ export function drawRoute(ctx, state) {
     ctx.fillStyle = PALETTE.ui;
     ctx.fillText(choice.note, x + 20, y + 60);
     ctx.fillStyle = PALETTE.uiDim;
-    ctx.fillText(choice.kind === 'calm' ? 'safer dunes, one beacon less pressure' : 'richer glass, a relic, a faster wall', x + 20, y + 82);
+    ctx.fillText(choice.kind === 'calm' ? 'the wall keeps its distance longer' : 'richer glass, but the wall runs', x + 20, y + 82);
     ctx.fillStyle = PALETTE.accent;
     ctx.font = `700 11px ${SANS}`;
     ctx.fillText(`PRESS ${index + 1} OR CLICK`, x + 20, y + 108);
@@ -247,7 +247,7 @@ export function drawEnd(ctx, state) {
   ctx.fillText(
     won
       ? `all ${state.day.ports.length} beacons lit · the storm broke on your glass`
-      : `the wall took the dunes on day ${state.day.number} · ${state.totalLit} beacons lit`,
+      : `the storm wall took the yacht on day ${state.day.number} · ${state.totalLit} beacon${state.totalLit === 1 ? '' : 's'} lit`,
     ARENA.w / 2,
     282,
   );
@@ -255,7 +255,7 @@ export function drawEnd(ctx, state) {
   // The results card: grade, score, days, feats, seed.
   const cardW = 560;
   const cardH = 200;
-  panel(ctx, ARENA.w / 2 - cardW / 2, 306, cardW, cardH, 0.72);
+  panel(ctx, ARENA.w / 2 - cardW / 2, 306, cardW, cardH, 0.88);
   ctx.textAlign = 'left';
   ctx.font = `700 11px ${SANS}`;
   ctx.fillStyle = PALETTE.accent;
@@ -286,9 +286,9 @@ export function drawEnd(ctx, state) {
   ctx.font = `700 11px ${SANS}`;
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('FEATS', ARENA.w / 2 - cardW / 2 + 22, 434);
-  ctx.font = `600 10px ${SANS}`;
+  ctx.font = `600 11px ${SANS}`;
   state.feats.slice(0, 5).forEach((feat, index) => {
-    ctx.fillStyle = PALETTE.ui;
+    ctx.fillStyle = 'rgba(255,244,222,0.92)';
     ctx.fillText(`· ${feat}`, ARENA.w / 2 - cardW / 2 + 22 + (index % 2) * 250, 452 + Math.floor(index / 2) * 15);
   });
 
