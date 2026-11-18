@@ -52,6 +52,7 @@ export function drawTitle(ctx, state) {
   spaced(ctx, 'SUNGLASS', ARENA.w / 2, 178, 16, 90, 900);
   ctx.restore();
 
+  ctx.textAlign = 'center';
   ctx.font = font(19, 700);
   ctx.fillStyle = 'rgba(255,244,222,0.94)';
   ctx.fillText('sail the last desert and draw sunlight into glass', ARENA.w / 2, 212);
@@ -68,7 +69,7 @@ export function drawTitle(ctx, state) {
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('HOW TO PLAY', cardX + 22, 276);
   ctx.font = font(16, 600);
-  const lines = wrapText(ctx, 'WASD sails the dune-runner · the mouse aims the crystal lens · hold the button to sinter glass, and drag to draw a path from the sun-lens to every beacon of the day.', cardW - 44, 3);
+  const lines = wrapText(ctx, 'WASD sails · the mouse aims the lens · hold to sinter glass and drag a path from the sun-lens to every beacon.', cardW - 44, 3);
   ctx.fillStyle = '#fff9ec';
   lines.forEach((line, index) => ctx.fillText(line, cardX + 22, 294 + index * 18));
   ctx.font = font(15, 800);
@@ -243,61 +244,63 @@ export function drawEnd(ctx, state) {
 
   ctx.textAlign = 'center';
 
-  // The drift that ate the yacht, at the bottom of the frame under the title: a rising bank of sand
-  // with the bow and a snapped mast still out of it, sail torn.
+  // A low, irregular drift along the bottom edge — bumps, not a dome — with the mast and a torn
+  // sail rising to the left of the card. Nothing touches the buttons.
   if (!won) {
     ctx.save();
-    ctx.translate(ARENA.w / 2, 700);
-    const drift = ctx.createLinearGradient(0, -80, 0, 90);
+    const drift = ctx.createLinearGradient(0, ARENA.h - 130, 0, ARENA.h);
     drift.addColorStop(0, '#d79a5c');
-    drift.addColorStop(0.55, '#b0763f');
-    drift.addColorStop(1, '#6d4526');
+    drift.addColorStop(0.6, '#ab7340');
+    drift.addColorStop(1, '#5f3c22');
     ctx.fillStyle = drift;
     ctx.beginPath();
-    ctx.moveTo(-260, 90);
-    ctx.quadraticCurveTo(-150, -46, -40, -22);
-    ctx.quadraticCurveTo(60, -4, 150, -34);
-    ctx.quadraticCurveTo(230, -56, 268, 90);
+    ctx.moveTo(0, ARENA.h);
+    ctx.lineTo(0, ARENA.h - 54);
+    const bumps = [
+      [70, ARENA.h - 74], [150, ARENA.h - 42], [240, ARENA.h - 66], [330, ARENA.h - 34],
+      [430, ARENA.h - 58], [540, ARENA.h - 30], [650, ARENA.h - 52], [760, ARENA.h - 28],
+      [880, ARENA.h - 48], [1000, ARENA.h - 26], [1120, ARENA.h - 46], [1220, ARENA.h - 22],
+      [ARENA.w, ARENA.h - 40],
+    ];
+    for (const [x, y] of bumps) {
+      ctx.quadraticCurveTo(x - 40, y - 22, x, y);
+    }
+    ctx.lineTo(ARENA.w, ARENA.h);
     ctx.closePath();
     ctx.fill();
-    // Wind-carved ripples on the drift.
-    ctx.strokeStyle = 'rgba(255,226,180,0.35)';
+    // Ripple lines raked by wind.
+    ctx.strokeStyle = 'rgba(255,226,180,0.3)';
     ctx.lineWidth = 2;
-    for (let i = 0; i < 5; i += 1) {
+    for (let i = 0; i < 6; i += 1) {
+      const y = ARENA.h - 40 + i * 14;
       ctx.beginPath();
-      ctx.moveTo(-210 + i * 8, 40 + i * 10);
-      ctx.quadraticCurveTo(-120, 6 + i * 12, -20 + i * 10, 26 + i * 9);
+      ctx.moveTo(40 + i * 26, y);
+      ctx.quadraticCurveTo(300, y - 12, 620 + i * 20, y + 4);
       ctx.stroke();
     }
-    // The bow, canted over, half swallowed.
-    ctx.translate(-10, -14);
-    ctx.rotate(-0.34);
-    ctx.fillStyle = '#2a1a12';
+
+    // The snapped mast and torn sail, left of the card.
+    ctx.save();
+    ctx.translate(196, ARENA.h - 58);
+    ctx.rotate(0.28);
+    ctx.strokeStyle = '#2a1a12';
+    ctx.lineWidth = 7;
     ctx.beginPath();
-    ctx.moveTo(52, 0);
-    ctx.quadraticCurveTo(14, -16, -40, -10);
-    ctx.quadraticCurveTo(-52, 0, -40, 10);
-    ctx.quadraticCurveTo(14, 16, 52, 0);
+    ctx.moveTo(0, 0);
+    ctx.lineTo(10, -136);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,246,224,0.95)';
+    ctx.beginPath();
+    ctx.moveTo(10, -136);
+    ctx.lineTo(74, -96);
+    ctx.lineTo(18, -80);
+    ctx.lineTo(40, -66);
     ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = '#f4c98a';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(60,36,22,0.7)';
+    ctx.lineWidth = 1.6;
     ctx.stroke();
-    // Snapped mast and a torn sail.
-    ctx.strokeStyle = '#3a2318';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(-6, -6);
-    ctx.lineTo(6, -96);
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(255,238,196,0.92)';
-    ctx.beginPath();
-    ctx.moveTo(6, -96);
-    ctx.lineTo(70, -60);
-    ctx.lineTo(14, -46);
-    ctx.lineTo(30, -34);
-    ctx.closePath();
-    ctx.fill();
+    ctx.restore();
     ctx.restore();
   }
 

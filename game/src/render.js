@@ -266,30 +266,17 @@ export function drawBeam(ctx, yacht, input, sun) {
   if (!yacht.firing) return;
   const target = yacht.lens;
   const colour = input.colour === 'red' ? '255,120,130' : input.colour === 'blue' ? '140,200,255' : '255,240,190';
+  const originX = yacht.x + Math.cos(yacht.angle) * 24;
+  const originY = yacht.y + Math.sin(yacht.angle) * 8;
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  // The shaft: sun to lens, wide at the top and tight at the ground.
-  const shaft = ctx.createLinearGradient(sun.x, sun.y, target.x, target.y);
-  shaft.addColorStop(0, `rgba(${colour},0.05)`);
-  shaft.addColorStop(0.55, `rgba(${colour},0.3)`);
-  shaft.addColorStop(1, `rgba(${colour},0.75)`);
-  ctx.fillStyle = shaft;
-  ctx.beginPath();
-  ctx.moveTo(sun.x - 60, sun.y);
-  ctx.lineTo(sun.x + 60, sun.y);
-  ctx.lineTo(target.x + 12, target.y);
-  ctx.lineTo(target.x - 12, target.y);
-  ctx.closePath();
-  ctx.fill();
-
-  // The working beam: a hot wide bar of light from the lens to the sand, additive.
   ctx.lineCap = 'round';
-  const originX = yacht.x + Math.cos(yacht.angle) * 20;
-  const originY = yacht.y + Math.sin(yacht.angle) * 20;
-  const beamGrad = ctx.createLinearGradient(originX, originY, target.x, target.y);
-  beamGrad.addColorStop(0, `rgba(${colour},0.95)`);
-  beamGrad.addColorStop(1, 'rgba(255,255,255,0.95)');
-  ctx.strokeStyle = beamGrad;
+
+  // The working beam: a hot bar of light from the bow crystal to the sand.
+  const grad = ctx.createLinearGradient(originX, originY, target.x, target.y);
+  grad.addColorStop(0, `rgba(${colour},0.95)`);
+  grad.addColorStop(1, 'rgba(255,255,255,0.98)');
+  ctx.strokeStyle = grad;
   ctx.lineWidth = 16;
   ctx.beginPath();
   ctx.moveTo(originX, originY);
@@ -302,7 +289,6 @@ export function drawBeam(ctx, yacht, input, sun) {
   ctx.lineTo(target.x, target.y);
   ctx.stroke();
 
-  // Sparks thrown off the beam and a molten tip where the sand turns to glass.
   for (let i = 0; i < 9; i += 1) {
     const t = ((Date.now() / 260 + i * 0.37) % 1);
     const x = originX + (target.x - originX) * t;
@@ -312,36 +298,23 @@ export function drawBeam(ctx, yacht, input, sun) {
     ctx.arc(x, y, 2.2, 0, Math.PI * 2);
     ctx.fill();
   }
-  const tip = ctx.createRadialGradient(target.x, target.y, 2, target.x, target.y, 34);
+  const tip = ctx.createRadialGradient(target.x, target.y, 2, target.x, target.y, 32);
   tip.addColorStop(0, 'rgba(255,252,232,1)');
   tip.addColorStop(0.35, 'rgba(255,180,90,0.75)');
   tip.addColorStop(1, 'rgba(255,140,70,0)');
   ctx.fillStyle = tip;
   ctx.beginPath();
-  ctx.arc(target.x, target.y, 34, 0, Math.PI * 2);
+  ctx.arc(target.x, target.y, 32, 0, Math.PI * 2);
   ctx.fill();
-  ctx.globalCompositeOperation = 'source-over';
-
-  // Impact: a hot ring and a splash of light where the sand turns to glass.
-  ctx.shadowColor = `rgba(${colour},0.9)`;
-  ctx.shadowBlur = 40;
-  ctx.fillStyle = `rgba(255,255,240,0.95)`;
-  ctx.beginPath();
-  ctx.arc(target.x, target.y, 9, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = `rgba(${colour},0.75)`;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.arc(target.x, target.y, 20, 0, Math.PI * 2);
-  ctx.stroke();
   ctx.restore();
+  void sun;
 }
 
 export function drawYacht(ctx, yacht, time) {
   ctx.save();
   ctx.translate(yacht.x, yacht.y);
 
-  // Dust and a short wake first, behind the hull.
+  // A short sand wake behind the hull.
   for (const puff of yacht.dust || []) {
     ctx.globalAlpha = Math.max(0, puff.life) * 0.4;
     ctx.fillStyle = '#f6d9a8';
@@ -352,41 +325,52 @@ export function drawYacht(ctx, yacht, time) {
   ctx.globalAlpha = 1;
 
   ctx.rotate(yacht.angle);
-  ctx.scale(3.2, 3.2);
-  // Hull: a long dune-runner with a runner ski on each side.
-  ctx.fillStyle = '#2a1a12';
+
+  // Pale hull, dark outline: one readable shape.
+  ctx.fillStyle = '#fff3de';
+  ctx.strokeStyle = '#20131c';
+  ctx.lineWidth = 2.6;
   ctx.beginPath();
-  ctx.moveTo(26, 0);
-  ctx.quadraticCurveTo(6, -13, -22, -9);
-  ctx.quadraticCurveTo(-30, 0, -22, 9);
-  ctx.quadraticCurveTo(6, 13, 26, 0);
+  ctx.moveTo(34, 0);
+  ctx.quadraticCurveTo(10, -13, -26, -8);
+  ctx.quadraticCurveTo(-34, 0, -26, 8);
+  ctx.quadraticCurveTo(10, 13, 34, 0);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = '#f4c98a';
+  ctx.stroke();
+
+  // A tall white sail and its mast.
+  ctx.strokeStyle = '#20131c';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(2, -6);
+  ctx.lineTo(2, -46);
+  ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(4, -46);
+  ctx.lineTo(34, -18);
+  ctx.lineTo(4, -6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#20131c';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // The crystal lens on the bow, glowing cyan.
+  ctx.shadowColor = '#6effd6';
+  ctx.shadowBlur = 26;
+  ctx.fillStyle = '#a8fff0';
+  ctx.beginPath();
+  ctx.arc(30, -2, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#0e5f52';
   ctx.lineWidth = 1.6;
   ctx.stroke();
 
-  ctx.fillStyle = '#c98a4e';
-  ctx.fillRect(-18, -18, 22, 4);
-  ctx.fillRect(-18, 14, 22, 4);
-
-  // Sail and mast: the silhouette that says "sand-yacht" at a glance.
-  ctx.strokeStyle = '#3a2318';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(0, -6);
-  ctx.lineTo(0, -30);
-  ctx.stroke();
-  ctx.fillStyle = 'rgba(255,238,196,0.9)';
-  ctx.beginPath();
-  ctx.moveTo(1, -30);
-  ctx.lineTo(22, -14);
-  ctx.lineTo(1, -6);
-  ctx.closePath();
-  ctx.fill();
-
-  // The crystal lens on the bow, always facing the aim: the brightest thing the player owns.
   ctx.restore();
+  void time;
 }
 
 export function drawLens(ctx, yacht, input, time) {
@@ -486,128 +470,143 @@ export function drawBoss(ctx, boss, time) {
   ctx.save();
   ctx.translate(boss.x, boss.y);
 
-  // Base: he fades into the storm he came from.
-  const base = ctx.createLinearGradient(0, size * 0.3, 0, size * 1.9);
-  base.addColorStop(0, 'rgba(96,56,60,0.55)');
-  base.addColorStop(1, 'rgba(60,32,52,0)');
+  // Base haze so he grows out of the sand.
+  const base = ctx.createLinearGradient(0, size * 0.4, 0, size * 1.8);
+  base.addColorStop(0, 'rgba(92,54,56,0.5)');
+  base.addColorStop(1, 'rgba(52,28,46,0)');
   ctx.fillStyle = base;
   ctx.beginPath();
-  ctx.ellipse(0, size * 1.1, size * 1.05, size * 0.85, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, size * 1.0, size * 1.0, size * 0.7, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // The body: bands of swirling sand, dark at the edges, each with its own noise.
-  for (let band = 0; band < 22; band += 1) {
-    const t = band / 21;
-    const y = -size * 0.95 + t * size * 1.95;
-    const halfWidth = size * (0.16 + t * 0.62) * (1 - Math.pow(Math.max(0, t - 0.72), 2) * 2.2);
-    const phase = time * 1.1 + band * 0.7;
-    const wobble = Math.sin(phase) * size * 0.05;
-    const dark = 0.55 - t * 0.25;
-    ctx.strokeStyle = `rgba(${Math.round(48 + t * 46)},${Math.round(30 + t * 26)},${Math.round(38 + t * 30)},${0.75 + dark * 0.25})`;
-    ctx.lineWidth = size * 0.11;
+  // The vortex body: wide at the base, narrow at the shoulders.
+  const bodyPath = () => {
     ctx.beginPath();
-    ctx.moveTo(-halfWidth + wobble, y);
-    ctx.bezierCurveTo(-halfWidth * 0.4, y - size * 0.07, halfWidth * 0.4, y + size * 0.07, halfWidth + wobble, y);
+    ctx.moveTo(-size * 0.2, -size * 0.72);
+    ctx.bezierCurveTo(-size * 0.34, -size * 0.2, -size * 0.82, size * 0.2, -size * 0.9, size * 0.95);
+    ctx.bezierCurveTo(-size * 0.4, size * 1.2, size * 0.4, size * 1.2, size * 0.9, size * 0.95);
+    ctx.bezierCurveTo(size * 0.82, size * 0.2, size * 0.34, -size * 0.2, size * 0.2, -size * 0.72);
+    ctx.closePath();
+  };
+  const body = ctx.createLinearGradient(0, -size * 0.8, 0, size * 1.1);
+  body.addColorStop(0, '#6e4436');
+  body.addColorStop(0.45, '#5a3438');
+  body.addColorStop(1, '#33202f');
+  bodyPath();
+  ctx.fillStyle = body;
+  ctx.fill();
+
+  // Diagonal swirls, clipped inside the vortex, dark at the edges.
+  ctx.save();
+  bodyPath();
+  ctx.clip();
+  for (let i = 0; i < 16; i += 1) {
+    const t = i / 15;
+    const y = -size * 0.7 + t * size * 1.9;
+    const drift = Math.sin(time * 1.4 + i * 0.6) * size * 0.08;
+    ctx.strokeStyle = `rgba(${28 + t * 10},${18 + t * 8},${26 + t * 8},0.55)`;
+    ctx.lineWidth = size * (0.07 + t * 0.05);
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.95 + drift, y + size * 0.1);
+    ctx.quadraticCurveTo(0, y - size * 0.12, size * 0.95 + drift, y + size * 0.04);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(214,158,112,0.16)';
-    ctx.lineWidth = size * 0.03;
+    ctx.strokeStyle = 'rgba(226,168,116,0.14)';
+    ctx.lineWidth = size * 0.02;
     ctx.beginPath();
-    ctx.moveTo(-halfWidth * 0.9 + wobble, y - size * 0.035);
-    ctx.bezierCurveTo(-halfWidth * 0.3, y - size * 0.1, halfWidth * 0.4, y + size * 0.02, halfWidth * 0.92 + wobble, y - size * 0.03);
+    ctx.moveTo(-size * 0.9 + drift, y);
+    ctx.quadraticCurveTo(0, y - size * 0.16, size * 0.9 + drift, y - size * 0.06);
     ctx.stroke();
   }
+  ctx.restore();
 
-  // Shoulders and two arms, reaching for the yacht.
-  ctx.lineCap = 'round';
+  // Arms: tapered, ending in claws of sand.
   for (const side of [-1, 1]) {
-    const reach = Math.sin(time * 1.3 + side) * 0.4;
-    const grad = ctx.createLinearGradient(side * size * 0.3, -size * 0.5, side * size * 1.5, size * 0.4);
-    grad.addColorStop(0, '#8d5c4e');
-    grad.addColorStop(1, 'rgba(120,74,86,0.25)');
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = size * 0.3;
+    const swing = Math.sin(time * 1.2 + side) * 0.35;
+    const tipX = side * size * 1.45;
+    const tipY = size * 0.45 + swing * size * 0.3;
     ctx.beginPath();
-    ctx.moveTo(side * size * 0.3, -size * 0.46);
-    ctx.quadraticCurveTo(side * size * 1.15, -size * 0.2 + reach * 30, side * size * 1.42, size * 0.42 + reach * 40);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(232,178,124,0.2)';
-    ctx.lineWidth = size * 0.08;
-    ctx.beginPath();
-    ctx.moveTo(side * size * 0.32, -size * 0.52);
-    ctx.quadraticCurveTo(side * size * 1.1, -size * 0.3 + reach * 30, side * size * 1.36, size * 0.3 + reach * 40);
-    ctx.stroke();
+    ctx.moveTo(side * size * 0.18, -size * 0.5);
+    ctx.quadraticCurveTo(side * size * 0.95, -size * 0.25, tipX, tipY);
+    ctx.quadraticCurveTo(side * size * 0.9, size * 0.02, side * size * 0.16, -size * 0.28);
+    ctx.closePath();
+    const arm = ctx.createLinearGradient(side * size * 0.2, -size * 0.4, tipX, tipY);
+    arm.addColorStop(0, '#6b4236');
+    arm.addColorStop(1, 'rgba(96,58,52,0.35)');
+    ctx.fillStyle = arm;
+    ctx.fill();
+    // Claws.
+    ctx.strokeStyle = 'rgba(232,182,130,0.6)';
+    ctx.lineWidth = size * 0.05;
+    ctx.lineCap = 'round';
+    for (let c = -1; c <= 1; c += 1) {
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(tipX + side * size * 0.16, tipY + c * size * 0.14 + size * 0.05);
+      ctx.stroke();
+    }
   }
 
-  // Head: darker sand, brow ridge, two burning eyes.
-  ctx.fillStyle = '#3d2430';
+  // Head: dark sand, brow, two burning eyes.
+  ctx.fillStyle = '#3a2230';
   ctx.beginPath();
-  ctx.ellipse(0, -size * 0.86, size * 0.26, size * 0.2, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, -size * 0.84, size * 0.24, size * 0.19, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(232,178,124,0.35)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
   ctx.shadowColor = 'rgba(255,170,70,0.95)';
-  ctx.shadowBlur = 26;
+  ctx.shadowBlur = 24;
   ctx.fillStyle = '#ffd28a';
   for (const eye of [-1, 1]) {
     ctx.beginPath();
-    ctx.ellipse(eye * size * 0.1, -size * 0.87, size * 0.055, size * 0.032, eye * 0.25, 0, Math.PI * 2);
+    ctx.ellipse(eye * size * 0.09, -size * 0.85, size * 0.05, size * 0.028, eye * 0.25, 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.shadowBlur = 0;
 
-  // Crown: jagged gold-white lightning, glowing.
-  ctx.strokeStyle = '#fff3c8';
-  ctx.shadowColor = 'rgba(255,220,140,0.95)';
-  ctx.shadowBlur = 22;
-  for (let i = 0; i < 7; i += 1) {
-    const x = -size * 0.24 + i * size * 0.08;
-    const h = size * (0.26 + (i % 3) * 0.12);
-    ctx.lineWidth = 3.4;
+  // Crown: thick jagged bolts, white-gold, glowing.
+  ctx.strokeStyle = '#fff6d2';
+  ctx.shadowColor = 'rgba(255,214,130,0.95)';
+  ctx.shadowBlur = 24;
+  ctx.lineWidth = 5;
+  ctx.lineJoin = 'miter';
+  for (let i = 0; i < 5; i += 1) {
+    const x = -size * 0.2 + i * size * 0.1;
+    const h = size * (0.34 + (i % 3) * 0.14);
     ctx.beginPath();
     ctx.moveTo(x, -size * 1.0);
-    ctx.lineTo(x + size * 0.03, -size * 1.0 - h * 0.55);
-    ctx.lineTo(x + size * 0.07, -size * 1.0 - h * 0.35);
-    ctx.lineTo(x + size * 0.055, -size * 1.0 - h);
+    ctx.lineTo(x + size * 0.05, -size * 1.0 - h * 0.45);
+    ctx.lineTo(x - size * 0.01, -size * 1.0 - h * 0.6);
+    ctx.lineTo(x + size * 0.06, -size * 1.0 - h);
     ctx.stroke();
   }
   ctx.shadowBlur = 0;
 
-  // Cracked core, hot red where the beam lands.
-  const core = ctx.createRadialGradient(0, -size * 0.12, 3, 0, -size * 0.12, size * 0.3);
+  // Cracked core, red where the beam lands.
+  const core = ctx.createRadialGradient(0, -size * 0.1, 3, 0, -size * 0.1, size * 0.3);
   core.addColorStop(0, '#fff2d6');
-  core.addColorStop(0.35, 'rgba(255,120,90,0.85)');
+  core.addColorStop(0.32, 'rgba(255,126,92,0.9)');
   core.addColorStop(1, 'rgba(255,90,70,0)');
   ctx.fillStyle = core;
   ctx.beginPath();
-  ctx.arc(0, -size * 0.12, size * 0.3, 0, Math.PI * 2);
+  ctx.arc(0, -size * 0.1, size * 0.3, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = 'rgba(255,196,140,0.9)';
-  ctx.lineWidth = 2.2;
+  ctx.lineWidth = 2.4;
   for (let i = 0; i < 8; i += 1) {
     const a = (i / 8) * Math.PI * 2 + time * 0.2;
     ctx.beginPath();
-    ctx.moveTo(Math.cos(a) * size * 0.08, -size * 0.12 + Math.sin(a) * size * 0.08);
-    ctx.lineTo(Math.cos(a) * size * 0.34, -size * 0.12 + Math.sin(a) * size * 0.34);
+    ctx.moveTo(Math.cos(a) * size * 0.09, -size * 0.1 + Math.sin(a) * size * 0.09);
+    ctx.lineTo(Math.cos(a) * size * 0.34, -size * 0.1 + Math.sin(a) * size * 0.34);
     ctx.stroke();
   }
 
-  // Sand pouring off him.
-  ctx.fillStyle = 'rgba(220,166,112,0.5)';
-  for (let i = 0; i < 22; i += 1) {
-    const t = (time * 0.55 + i * 0.09) % 1;
-    ctx.fillRect(Math.sin(i * 2.3) * size * 0.55, size * 0.4 + t * size * 1.2, 3, 7);
-  }
-
-  // His label sits right under him.
+  // Label under his base.
   ctx.font = '800 15px "DejaVu Sans", "Liberation Sans", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.strokeStyle = 'rgba(18,9,20,0.9)';
   ctx.lineWidth = 4;
   const label = `THE STORM KING · PHASE ${boss.phase}/3`;
-  ctx.strokeText(label, 0, size * 1.62);
+  ctx.strokeText(label, 0, size * 1.42);
   ctx.fillStyle = '#ffe9d0';
-  ctx.fillText(label, 0, size * 1.62);
+  ctx.fillText(label, 0, size * 1.42);
   ctx.textAlign = 'left';
   ctx.restore();
 }

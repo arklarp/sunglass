@@ -67,18 +67,9 @@ export function stageShot(name, ctx) {
     fuse(day.network, b2.x, b2.y, b2.x + 130, b2.y + 150, 'red', 9);
     fuse(day.network, b2.x + 130, b2.y + 150, b2.x + 300, b2.y + 210, 'red', 8);
     fuse(day.network, b3.x, b3.y, b3.x - 40, b3.y + 170, 'amber', 8);
-    // Closed panes where the trunks meet, so the web is stained glass and not spaghetti.
-    day.network.facets = [
-      [[src.x + 60, src.y + 10], [b1.x - 30, b1.y + 40], [b1.x - 130, b1.y + 150], [src.x + 40, src.y + 165], [src.x - 20, src.y + 80]],
-      [[b1.x - 30, b1.y + 60], [b1.x + 130, b1.y - 90], [b1.x + 250, b1.y + 10], [b1.x + 120, b1.y + 140]],
-      [[b2.x - 40, b2.y + 40], [b2.x + 90, b2.y + 120], [b2.x + 40, b2.y + 250], [b2.x - 100, b2.y + 140]],
-      [[src.x + 120, src.y + 150], [src.x + 300, src.y + 200], [src.x + 420, src.y + 120], [src.x + 280, src.y + 60]],
-    ];
-    day.network.facets[0].colour = 'amber';
-    day.network.facets[1].colour = 'blue';
-    day.network.facets[2].colour = 'red';
-    day.network.facets[3].colour = 'amber';
+    // Panes come from the paths themselves, so every pane edge is lead came.
     day.network.rebuild();
+    day.network.generateFacets(4);
 
     day.stormX = 1030;
     day.stormSpeed = 80;
@@ -92,8 +83,9 @@ export function stageShot(name, ctx) {
     day.popup(760, 560, '+480', '#ffd166');
     day.popup(520, 620, '+240', '#ffe9a8');
 
-    yacht.x = 620;
-    yacht.y = 630;
+    yacht.x = 470;
+    yacht.y = 404;
+    yacht.angle = -0.5;
     yacht.vx = 90;
     yacht.vy = -30;
     yacht.angle = -0.25;
@@ -199,7 +191,12 @@ export function stageShot(name, ctx) {
     day.network.facets[0].colour = 'amber';
     day.network.facets[1].colour = 'blue';
     day.network.facets[2].colour = 'amber';
+    fuse(day.network, day.ports[2].x, day.ports[2].y, day.ports[2].x - 260, day.ports[2].y + 150, 'amber', 12);
+    fuse(day.network, src.x + 40, src.y + 190, src.x + 320, src.y + 250, 'blue', 12);
+    fuse(day.network, src.x + 320, src.y + 250, src.x + 540, src.y + 150, 'amber', 10);
+    fuse(day.network, src.x + 540, src.y + 150, src.x + 640, src.y + 240, 'red', 8);
     day.network.rebuild();
+    day.network.generateFacets(4);
     day.boss.hp = 0;
     day.boss.alive = false;
     day.stormX = 250;

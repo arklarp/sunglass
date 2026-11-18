@@ -166,6 +166,33 @@ export class Network {
     return this.litCount;
   }
 
+  // Panes derived from the glass itself: wherever two paths come close, the triangle between them
+  // is filled, so every pane edge lands on a real path (the path is the lead came).
+  generateFacets(limit = 4) {
+    const live = this.segments.filter((segment) => segment.hp > 0 && segment.lit);
+    const ends = [];
+    for (const segment of live) {
+      ends.push({ x: segment.x1, y: segment.y1, ox: segment.x2, oy: segment.y2, colour: segment.colour });
+      ends.push({ x: segment.x2, y: segment.y2, ox: segment.x1, oy: segment.y1, colour: segment.colour });
+    }
+    const made = [];
+    for (let i = 0; i < ends.length; i += 1) {
+      const a = ends[i];
+      for (let j = i + 1; j < ends.length; j += 1) {
+        const b = ends[j];
+        if (Math.hypot(a.x - b.x, a.y - b.y) > 46) continue;
+        if (Math.hypot(a.ox - b.ox, a.oy - b.oy) > 300) continue;
+        const area = Math.abs((a.ox - a.x) * (b.oy - a.y) - (b.ox - a.x) * (a.oy - a.y)) / 2;
+        if (area < 500 || area > 42000) continue;
+        const facet = [[a.x, a.y], [a.ox, a.oy], [b.ox, b.oy]];
+        facet.colour = a.colour;
+        made.push(facet);
+      }
+    }
+    this.facets = made.slice(0, limit);
+    return this.facets;
+  }
+
   litBeacons() {
     return this.ports.filter((port) => port.lit).length;
   }
