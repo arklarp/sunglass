@@ -7,7 +7,7 @@ import { Input } from './input.js';
 import { Sound } from './audio.js';
 import { Yacht } from './player.js';
 import { Day } from './world.js';
-import { drawSky, drawDunes, drawSandGrain, drawStorm, drawLighting } from './desert.js';
+import { drawSky, drawDunes, drawSandGrain, drawStorm, drawLighting, drawDim } from './desert.js';
 import { drawArena } from './render.js';
 import { drawHud } from './hud.js';
 import { drawTitle, drawRoute, drawRelicPick, drawEnd } from './screens.js';
@@ -219,6 +219,8 @@ function draw() {
   drawSky(ctx, time, phase);
   drawDunes(ctx, phase, time);
   drawSandGrain(ctx, time, state.day ? state.day.stormX * 0.1 : 0);
+
+  drawDim(ctx, state.screen === 'win' ? 0.08 : state.screen === 'lose' ? 0.16 : 0.18);
 
   if (state.day && state.screen !== 'title') {
     drawStorm(ctx, state.day.stormX, time, state.day.stormCloseness(yacht));

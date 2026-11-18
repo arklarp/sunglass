@@ -15,21 +15,21 @@ export function drawSky(ctx, time, phase) {
   ctx.fillRect(0, 0, ARENA.w, ARENA.h);
 
   // Sun: low on the horizon, bloomed, with a thin corona that breathes.
-  const sunX = 258;
-  const sunY = 168;
-  const bloom = ctx.createRadialGradient(sunX, sunY, 8, sunX, sunY, 300);
-  bloom.addColorStop(0, 'rgba(255,226,170,0.5)');
+  const sunX = 520;
+  const sunY = 146;
+  const bloom = ctx.createRadialGradient(sunX, sunY, 6, sunX, sunY, 230);
+  bloom.addColorStop(0, 'rgba(255,236,190,0.62)');
   bloom.addColorStop(0.25, 'rgba(255,170,110,0.22)');
   bloom.addColorStop(1, 'rgba(255,140,90,0)');
   ctx.fillStyle = bloom;
-  ctx.fillRect(sunX - 300, sunY - 300, 600, 600);
+  ctx.fillRect(sunX - 230, sunY - 230, 460, 460);
   ctx.fillStyle = PALETTE.sun;
   ctx.beginPath();
-  ctx.arc(sunX, sunY, 58, 0, Math.PI * 2);
+  ctx.arc(sunX, sunY, 44, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = PALETTE.sunCore;
   ctx.beginPath();
-  ctx.arc(sunX, sunY - 4, 46, 0, Math.PI * 2);
+  ctx.arc(sunX, sunY - 3, 34, 0, Math.PI * 2);
   ctx.fill();
 
   // Long raking light across the sky: fine lines that make the air feel thick.
@@ -180,6 +180,12 @@ export function drawStorm(ctx, wallX, time, intensity) {
 }
 
 // Vignette plus a warm bloom at the sun: the two cheap moves that make a flat scene read as art.
+// The dim wash over the dunes: everything the player is not looking at gives up brightness.
+export function drawDim(ctx, strength) {
+  ctx.fillStyle = `rgba(12,7,22,${strength ?? 0.2})`;
+  ctx.fillRect(0, 0, ARENA.w, ARENA.h);
+}
+
 export function drawLighting(ctx, time) {
   const bloom = ctx.createRadialGradient(900, 250, 60, 900, 250, 780);
   bloom.addColorStop(0, 'rgba(255,214,150,0.18)');

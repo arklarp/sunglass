@@ -53,9 +53,9 @@ export class Day {
         maxHp: 900,
         phase: 1,
         phases: 3,
-        x: ARENA.w - 380,
+        x: ARENA.w - 470,
         y: 500,
-        size: 120,
+        size: 150,
         hitFlash: 0,
         alive: true,
       }

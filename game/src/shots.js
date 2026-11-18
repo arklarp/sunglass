@@ -183,7 +183,7 @@ export function stageShot(name, ctx) {
     day.network.rebuild();
     day.boss.hp = 0;
     day.boss.alive = false;
-    day.stormX = 640;
+    day.stormX = 250;
     day.stormSpeed = 0;
     yacht.x = 700;
     yacht.y = 470;
@@ -238,13 +238,21 @@ export function stageShot(name, ctx) {
   state.screen = 'lose';
   state.hideLabels = true;
   const src = day.source;
-  fuse(day.network, src.x, src.y, day.ports[0].x, day.ports[0].y, 'amber', 14);
+  // A run's worth of glass, so the flood has something to eat.
+  day.ports.forEach((port) => fuse(day.network, src.x, src.y, port.x, port.y, 'amber', 14));
+  fuse(day.network, src.x + 60, src.y + 40, src.x + 300, src.y + 150, 'blue', 10);
+  fuse(day.network, src.x + 300, src.y + 150, src.x + 470, src.y + 60, 'amber', 10);
   day.network.rebuild();
-  day.stormX = 470;
-  day.network.consume(440);
+  day.stormX = 250;
+  day.network.consume(230);
+  // Crack the network: a third of the paths snapped by the sand.
+  day.network.segments.forEach((segment, index) => {
+    if (index % 3 === 0) segment.hp = 0;
+  });
+  day.network.rebuild();
   day.ports.forEach((port) => { port.lit = false; });
-  yacht.x = 560;
-  yacht.y = 566;
+  yacht.x = 600;
+  yacht.y = 470;
   yacht.angle = 0.5;
   yacht.vx = 10;
   yacht.alive = false;

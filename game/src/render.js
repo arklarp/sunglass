@@ -26,14 +26,65 @@ export function drawNetwork(ctx, network, time) {
     if (segment.hp <= 0) continue;
     const health = segment.hp / segment.maxHp;
     const colour = segment.colour === 'red' ? PALETTE.glassRed : segment.colour === 'blue' ? PALETTE.glassBlue : PALETTE.glass;
-    ctx.globalAlpha = segment.lit ? 1 : 0.32;
+    const conduit = segment.colour === 'amber' && segment.lit;
+    ctx.globalAlpha = segment.lit ? (conduit ? 1 : 0.72) : 0.26;
     ctx.strokeStyle = segment.lit ? colour : 'rgba(150,170,200,0.5)';
-    ctx.lineWidth = 5 + health * 7;
+    ctx.lineWidth = conduit ? 8 : 3 + health * 3;
     ctx.beginPath();
     ctx.moveTo(segment.x1, segment.y1);
     ctx.lineTo(segment.x2, segment.y2);
     ctx.stroke();
   }
+
+  // Pass 1b: light pools on the sand under lit glass.
+  for (const segment of network.segments) {
+    if (segment.hp <= 0 || !segment.lit) continue;
+    const mx = (segment.x1 + segment.x2) / 2;
+    const my = (segment.y1 + segment.y2) / 2;
+    const colour = segment.colour === 'red' ? '255,106,122' : segment.colour === 'blue' ? '121,196,255' : '110,255,214';
+    const pool = ctx.createRadialGradient(mx, my, 4, mx, my, 54);
+    pool.addColorStop(0, `rgba(${colour},0.20)`);
+    pool.addColorStop(1, `rgba(${colour},0)`);
+    ctx.fillStyle = pool;
+    ctx.beginPath();
+    ctx.arc(mx, my, 54, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Pass 1c: closed facets. Where two paths leave the same node, the space between them is filled
+  // with a translucent pane, which is what makes the web read as stained glass and not as tubing.
+  const nodes = new Map();
+  for (const segment of network.segments) {
+    if (segment.hp <= 0 || !segment.lit) continue;
+    for (const [x, y, ox, oy] of [[segment.x1, segment.y1, segment.x2, segment.y2], [segment.x2, segment.y2, segment.x1, segment.y1]]) {
+      const key = `${Math.round(x / 18)},${Math.round(y / 18)}`;
+      if (!nodes.has(key)) nodes.set(key, []);
+      nodes.get(key).push({ x: ox, y: oy, colour: segment.colour });
+    }
+  }
+  for (const list of nodes.values()) {
+    if (list.length < 2) continue;
+    for (let i = 0; i < list.length - 1; i += 1) {
+      const a = list[i];
+      const b = list[i + 1];
+      const span = Math.hypot(a.x - b.x, a.y - b.y);
+      if (span > 420) continue;
+      const colour = a.colour === 'red' ? '255,106,122' : a.colour === 'blue' ? '121,196,255' : '110,255,214';
+      ctx.globalAlpha = 0.34;
+      ctx.fillStyle = `rgb(${colour})`;
+      ctx.beginPath();
+      ctx.moveTo((a.x + b.x) / 2 * 0.18 + a.x * 0.41 + b.x * 0.41, (a.y + b.y) / 2 * 0.18 + a.y * 0.41 + b.y * 0.41);
+      ctx.lineTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = '#1a1020';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
 
   // Pass 2b: the came — dark lead lines on both edges of every lit path, and a translucent pane
   // between them. That is what makes the network read as stained glass instead of neon tubing.
@@ -65,6 +116,27 @@ export function drawNetwork(ctx, network, time) {
     }
   }
   ctx.globalAlpha = 1;
+
+  // Pass 2c: specular glints, short and hard, the way light sits on glass edges.
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth = 1.8;
+  for (const segment of network.segments) {
+    if (segment.hp <= 0 || !segment.lit) continue;
+    const dx = segment.x2 - segment.x1;
+    const dy = segment.y2 - segment.y1;
+    const len = Math.hypot(dx, dy) || 1;
+    const t0 = ((segment.x1 * 13 + segment.y1 * 7) % 40) / 40;
+    for (let t = t0; t < 1; t += 0.34) {
+      const x = segment.x1 + dx * t;
+      const y = segment.y1 + dy * t;
+      const nx = (-dy / len) * 5;
+      const ny = (dx / len) * 5;
+      ctx.beginPath();
+      ctx.moveTo(x - dx / len * 6 + nx, y - dy / len * 6 + ny);
+      ctx.lineTo(x + dx / len * 6 + nx, y + dy / len * 6 + ny);
+      ctx.stroke();
+    }
+  }
 
   // Pass 3: the light running along the lit paths, a dash that travels toward the beacons.
   ctx.globalAlpha = 1;
@@ -355,10 +427,10 @@ export function drawBoss(ctx, boss, time) {
   const pulse = 0.5 + 0.5 * Math.sin(time * 2.2);
 
   // The storm he carries: a dark churn of sand and cloud around the figure.
-  const aura = ctx.createRadialGradient(0, 0, size * 0.4, 0, 0, size * 2.6);
-  aura.addColorStop(0, 'rgba(150,96,88,0.5)');
-  aura.addColorStop(0.5, 'rgba(80,48,86,0.35)');
-  aura.addColorStop(1, 'rgba(26,14,36,0)');
+  const aura = ctx.createRadialGradient(0, 0, size * 0.4, 0, 0, size * 2.4);
+  aura.addColorStop(0, 'rgba(120,70,74,0.4)');
+  aura.addColorStop(0.5, 'rgba(60,34,64,0.22)');
+  aura.addColorStop(1, 'rgba(20,10,28,0)');
   ctx.fillStyle = aura;
   ctx.beginPath();
   ctx.arc(0, 0, size * 2.6, 0, Math.PI * 2);
@@ -384,9 +456,9 @@ export function drawBoss(ctx, boss, time) {
 
   // Torso: a tapered cliff of sand with a torn hem.
   const body = ctx.createLinearGradient(0, -size * 0.9, 0, size);
-  body.addColorStop(0, '#c99578');
-  body.addColorStop(0.45, '#a06f6c');
-  body.addColorStop(1, '#4a2c46');
+  body.addColorStop(0, '#e0a97e');
+  body.addColorStop(0.45, '#b4766a');
+  body.addColorStop(1, '#5a3346');
   ctx.fillStyle = body;
   ctx.beginPath();
   ctx.moveTo(-size * 0.42, -size * 0.55);
@@ -422,10 +494,13 @@ export function drawBoss(ctx, boss, time) {
   }
 
   // Head and crown: a thundercloud brow with lightning teeth.
-  ctx.fillStyle = '#2a1a34';
+  ctx.fillStyle = '#33202e';
   ctx.beginPath();
-  ctx.ellipse(0, -size * 0.72, size * 0.3, size * 0.22, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, -size * 0.72, size * 0.32, size * 0.24, 0, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = 'rgba(255,196,140,0.35)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
   ctx.strokeStyle = 'rgba(220,230,255,0.9)';
   ctx.lineWidth = 3;
   for (let i = 0; i < 5; i += 1) {
@@ -440,9 +515,14 @@ export function drawBoss(ctx, boss, time) {
   }
 
   // Two hot slits where eyes would be: the only warm thing in the face.
-  ctx.fillStyle = 'rgba(255,226,170,0.95)';
-  ctx.fillRect(-size * 0.16, -size * 0.74, size * 0.12, 4);
-  ctx.fillRect(size * 0.05, -size * 0.74, size * 0.12, 4);
+  ctx.shadowColor = 'rgba(255,180,90,0.9)';
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = '#ffdf9f';
+  ctx.beginPath();
+  ctx.ellipse(-size * 0.12, -size * 0.72, size * 0.075, size * 0.03, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(size * 0.11, -size * 0.72, size * 0.075, size * 0.03, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
 
   // Sand falling off the hem, so he reads as weather and not a statue.
   ctx.fillStyle = 'rgba(214,160,110,0.5)';
@@ -451,6 +531,16 @@ export function drawBoss(ctx, boss, time) {
     const x = Math.sin(i * 2.7) * size * 0.4;
     ctx.fillRect(x, size * 0.6 + t * size * 0.9, 3, 6);
   }
+
+  // His name and phase sit under him, not in a panel.
+  ctx.font = '800 15px "DejaVu Sans", "Liberation Sans", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.strokeStyle = 'rgba(20,10,24,0.85)';
+  ctx.lineWidth = 4;
+  ctx.strokeText(`THE STORM KING · PHASE ${boss.phase}/3`, 0, size * 1.5);
+  ctx.fillStyle = '#ffe9d0';
+  ctx.fillText(`THE STORM KING · PHASE ${boss.phase}/3`, 0, size * 1.5);
+  ctx.textAlign = 'left';
   ctx.restore();
   void pulse;
 }
@@ -490,14 +580,15 @@ export function drawWorldLabels(ctx, state) {
     ctx.fillText('BEACON LIT', port.x, port.y - 74);
   }
 
+  ctx.font = '800 13px "DejaVu Sans", "Liberation Sans", Arial, sans-serif';
   for (const spirit of day.spirits) {
-    if (spirit.frozen > 0) {
-      ctx.fillStyle = 'rgba(168,216,255,0.95)';
-      ctx.fillText('FROZEN', spirit.x, spirit.y - spirit.size - 12);
-    } else if (spirit.burn > 0.3) {
-      ctx.fillStyle = 'rgba(255,150,120,0.95)';
-      ctx.fillText('BURNING', spirit.x, spirit.y - spirit.size - 12);
-    }
+    const label = spirit.frozen > 0 ? 'FROZEN' : spirit.burn > 0.3 ? 'BURNING' : null;
+    if (!label) continue;
+    ctx.strokeStyle = 'rgba(18,9,20,0.9)';
+    ctx.lineWidth = 4;
+    ctx.strokeText(label, spirit.x, spirit.y - spirit.size - 14);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(label, spirit.x, spirit.y - spirit.size - 14);
   }
   ctx.textAlign = 'left';
   void time;

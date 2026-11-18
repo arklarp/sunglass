@@ -190,21 +190,21 @@ export function drawHud(ctx, state) {
   });
 
   // ---- Right: route, relics and lens in one panel.
-  const rx = ARENA.w - 286;
+  const rx = ARENA.w - 268;
   const ry = 120;
   const relicLines = relics.length ? Math.min(3, relics.length) : 1;
   const rightH = 96 + relicLines * 22 + 40;
-  panel(ctx, rx, ry, 270, rightH);
+  panel(ctx, rx, ry, 252, rightH);
   ctx.font = font(13, 800);
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('ROUTE', rx + 18, ry + 26);
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(255,244,222,0.6)';
-  ctx.fillText(`RELICS ${relics.length} of 6`, rx + 252, ry + 26);
+  ctx.fillText(`RELICS ${relics.length} of 6`, rx + 234, ry + 26);
   ctx.textAlign = 'left';
 
   for (let i = 0; i < 7; i += 1) {
-    const x = rx + 34 + i * 33;
+    const x = rx + 30 + i * 30;
     const y = ry + 54;
     const here = i + 1 === day.number;
     ctx.fillStyle = i + 1 > day.number ? 'rgba(255,244,222,0.22)' : i + 1 === 7 ? '#ff8f9a' : PALETTE.beacon;
@@ -280,23 +280,23 @@ export function drawHud(ctx, state) {
 
   // ---- Bottom-right: the storm meter, which is the clock.
   const closeness = day.stormCloseness(yacht);
-  panel(ctx, ARENA.w - 286, ARENA.h - 118, 270, 104);
+  panel(ctx, ARENA.w - 268, ARENA.h - 118, 252, 104);
   ctx.font = font(13, 800);
   ctx.fillStyle = closeness > 0.66 ? '#ff8f8f' : PALETTE.accent;
-  ctx.fillText('STORM WALL', ARENA.w - 268, ARENA.h - 94);
+  ctx.fillText('STORM WALL', ARENA.w - 250, ARENA.h - 94);
   ctx.fillStyle = 'rgba(255,244,222,0.18)';
-  ctx.fillRect(ARENA.w - 268, ARENA.h - 86, 236, 12);
-  const wallColour = ctx.createLinearGradient(ARENA.w - 268, 0, ARENA.w - 32, 0);
+  ctx.fillRect(ARENA.w - 250, ARENA.h - 86, 218, 12);
+  const wallColour = ctx.createLinearGradient(ARENA.w - 250, 0, ARENA.w - 32, 0);
   wallColour.addColorStop(0, '#ff9a6a');
   wallColour.addColorStop(1, '#8f6bff');
   ctx.fillStyle = wallColour;
-  ctx.fillRect(ARENA.w - 268, ARENA.h - 86, 236 * closeness, 12);
+  ctx.fillRect(ARENA.w - 250, ARENA.h - 86, 218 * closeness, 12);
   ctx.font = font(22, 900);
   ctx.fillStyle = '#fff4de';
-  ctx.fillText(`${Math.max(0, Math.round(day.stormX - yacht.x))} m`, ARENA.w - 268, ARENA.h - 56);
+  ctx.fillText(`${Math.max(0, Math.round(day.stormX - yacht.x))} m`, ARENA.w - 250, ARENA.h - 56);
   ctx.font = font(11, 600);
   ctx.fillStyle = 'rgba(255,244,222,0.55)';
-  ctx.fillText(boss ? 'the King walks with the wall' : 'the wall never stops', ARENA.w - 268, ARENA.h - 34);
+  ctx.fillText(boss ? 'the King walks with the wall' : 'the wall never stops', ARENA.w - 250, ARENA.h - 34);
 
   // ---- Bottom-centre: the keycap bar.
   const keys = [
@@ -320,7 +320,7 @@ export function drawHud(ctx, state) {
 
   // ---- The combo word: big, warm, outlined, parked above the keycap bar.
   if (day.combo > 1) {
-    const words = ['', '', 'GLASS CHAIN', 'SPLIT CHAIN', 'PRISM CHAIN', 'PRISM CHAIN', 'STORM CHAIN'];
+    const words = ['', '', 'GLASS CHAIN', 'GLASS CHAIN', 'GLASS CHAIN', 'GLASS CHAIN', 'STORM CHAIN'];
     const label = `${words[Math.min(6, day.combo)]} x${day.combo}!`;
     ctx.save();
     ctx.globalAlpha = 0.85 + 0.15 * Math.sin(state.time * 9);

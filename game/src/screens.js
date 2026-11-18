@@ -29,7 +29,7 @@ export function drawTitle(ctx, state) {
 
   ctx.textAlign = 'center';
   spaced(ctx, 'THE LAST DESERT · SEVEN STORM DAYS', ARENA.w / 2, 70, 4, 13, 800);
-  ctx.fillStyle = PALETTE.accent;
+  ctx.fillStyle = '#ffcf8a';
 
   // Logo: bigger, bolder, gold into glass.
   const logo = ctx.createLinearGradient(ARENA.w / 2 - 340, 110, ARENA.w / 2 + 340, 210);
@@ -61,14 +61,14 @@ export function drawTitle(ctx, state) {
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('HOW TO PLAY', cardX + 22, 276);
   ctx.font = font(16, 600);
-  const lines = wrapText(ctx, 'WASD sails the dune-runner · the mouse aims the crystal lens · hold the button to sinter glass · drag to draw a path from the sun-lens to every beacon of the day.', cardW - 44, 2);
+  const lines = wrapText(ctx, 'WASD sails the dune-runner · the mouse aims the crystal lens · hold the button to sinter glass, and drag to draw a path from the sun-lens to every beacon of the day.', cardW - 44, 3);
   ctx.fillStyle = '#fff9ec';
-  lines.forEach((line, index) => ctx.fillText(line, cardX + 22, 300 + index * 21));
+  lines.forEach((line, index) => ctx.fillText(line, cardX + 22, 298 + index * 19));
   ctx.font = font(15, 800);
   ctx.fillStyle = '#b6ffc4';
-  ctx.fillText('WIN  light every beacon', cardX + 22, 342);
+  ctx.fillText('WIN  light every beacon', cardX + 22, 354);
   ctx.fillStyle = '#ff9a9a';
-  ctx.fillText('LOSE  the storm wall reaches you', cardX + 240, 342);
+  ctx.fillText('LOSE  the storm wall reaches you', cardX + 240, 354);
 
   // The feature strip: big digits, one small icon per column.
   const features = [
@@ -102,12 +102,12 @@ export function drawTitle(ctx, state) {
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('OMENS — PRESS 1 2 3', cardX + 22, sideY + 24);
   state.omens.forEach((omen, index) => {
-    const y = sideY + 50 + index * 25;
-    ctx.font = font(14, 800);
+    const y = sideY + 52 + index * 26;
+    ctx.font = font(15, 800);
     ctx.fillStyle = omen.on ? PALETTE.beacon : 'rgba(255,244,222,0.42)';
     ctx.fillText(`${omen.on ? '◆' : '◇'}  ${index + 1}   ${omen.name}`, cardX + 22, y);
-    fitText(ctx, omen.note, 170, 11, 600);
-    ctx.fillStyle = 'rgba(255,244,222,0.55)';
+    fitText(ctx, omen.note, 166, 13, 600);
+    ctx.fillStyle = 'rgba(255,244,222,0.66)';
     ctx.fillText(omen.note, cardX + 200, y);
   });
 
@@ -231,34 +231,64 @@ export function drawRelicPick(ctx, state) {
 // The end cards: an opaque report, the grade, a two-column table, feats, and two ways out.
 export function drawEnd(ctx, state) {
   const won = state.screen === 'win';
-  ctx.fillStyle = won ? 'rgba(22,10,8,0.42)' : 'rgba(14,7,18,0.5)';
+  ctx.fillStyle = won ? 'rgba(64,28,10,0.18)' : 'rgba(10,5,16,0.44)';
   ctx.fillRect(0, 0, ARENA.w, ARENA.h);
 
   ctx.textAlign = 'center';
 
-  // The half-buried yacht above a defeat: a drift of sand with the mast still out of it.
+  // The drift that ate the yacht, at the bottom of the frame under the title: a rising bank of sand
+  // with the bow and a snapped mast still out of it, sail torn.
   if (!won) {
     ctx.save();
-    ctx.translate(ARENA.w / 2, 148);
-    ctx.fillStyle = '#c98a4e';
+    ctx.translate(ARENA.w / 2, 700);
+    const drift = ctx.createLinearGradient(0, -80, 0, 90);
+    drift.addColorStop(0, '#d79a5c');
+    drift.addColorStop(0.55, '#b0763f');
+    drift.addColorStop(1, '#6d4526');
+    ctx.fillStyle = drift;
     ctx.beginPath();
-    ctx.ellipse(0, 26, 190, 44, 0, 0, Math.PI * 2);
+    ctx.moveTo(-260, 90);
+    ctx.quadraticCurveTo(-150, -46, -40, -22);
+    ctx.quadraticCurveTo(60, -4, 150, -34);
+    ctx.quadraticCurveTo(230, -56, 268, 90);
+    ctx.closePath();
     ctx.fill();
-    ctx.fillStyle = '#a86f3c';
+    // Wind-carved ripples on the drift.
+    ctx.strokeStyle = 'rgba(255,226,180,0.35)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 5; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(-210 + i * 8, 40 + i * 10);
+      ctx.quadraticCurveTo(-120, 6 + i * 12, -20 + i * 10, 26 + i * 9);
+      ctx.stroke();
+    }
+    // The bow, canted over, half swallowed.
+    ctx.translate(-10, -14);
+    ctx.rotate(-0.34);
+    ctx.fillStyle = '#2a1a12';
     ctx.beginPath();
-    ctx.ellipse(0, 30, 150, 30, 0, 0, Math.PI * 2);
+    ctx.moveTo(52, 0);
+    ctx.quadraticCurveTo(14, -16, -40, -10);
+    ctx.quadraticCurveTo(-52, 0, -40, 10);
+    ctx.quadraticCurveTo(14, 16, 52, 0);
+    ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = '#2a1a12';
-    ctx.lineWidth = 7;
+    ctx.strokeStyle = '#f4c98a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // Snapped mast and a torn sail.
+    ctx.strokeStyle = '#3a2318';
+    ctx.lineWidth = 6;
     ctx.beginPath();
-    ctx.moveTo(-28, 18);
-    ctx.lineTo(26, -54);
+    ctx.moveTo(-6, -6);
+    ctx.lineTo(6, -96);
     ctx.stroke();
     ctx.fillStyle = 'rgba(255,238,196,0.92)';
     ctx.beginPath();
-    ctx.moveTo(26, -54);
-    ctx.lineTo(-6, -30);
-    ctx.lineTo(24, -18);
+    ctx.moveTo(6, -96);
+    ctx.lineTo(70, -60);
+    ctx.lineTo(14, -46);
+    ctx.lineTo(30, -34);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
@@ -288,7 +318,7 @@ export function drawEnd(ctx, state) {
   const cardH = 300;
   const cardX = ARENA.w / 2 - cardW / 2;
   const cardY = won ? 264 : 312;
-  panel(ctx, cardX, cardY, cardW, cardH, 0.94);
+  panel(ctx, cardX, cardY, cardW, cardH, 1);
   ctx.textAlign = 'left';
   ctx.font = font(13, 800);
   ctx.fillStyle = PALETTE.accent;
