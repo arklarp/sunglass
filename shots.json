@@ -1,0 +1,6 @@
+[
+  { "name": "1-cover.jpg", "query": "?shot=cover&seed=11" },
+  { "name": "2-verb.jpg", "query": "?shot=verb&seed=11" },
+  { "name": "3-route.jpg", "query": "?shot=route&seed=11" },
+  { "name": "4-buried.jpg", "query": "?shot=lose&seed=11" }
+]

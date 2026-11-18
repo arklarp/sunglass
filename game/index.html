@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUNGLASS — draw sunlight into glass before the storm</title>
+<meta name="description" content="SUNGLASS: sail a sand-yacht across the last desert, aim the crystal lens and sinter sunlight into glass paths that light the beacons before the storm wall buries you.">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1a1026; }
+  canvas#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; image-rendering: auto; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="SUNGLASS: sail with WASD, aim the crystal lens with the mouse, hold the button to sinter glass paths across the dunes and light every beacon before the storm wall reaches you."></canvas>
+<p id="status" class="sr" role="status" aria-live="polite"></p>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
