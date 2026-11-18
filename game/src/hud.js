@@ -8,7 +8,7 @@ import { PALETTE, ARENA, FONT, font } from './config.js';
 const SANS = FONT;
 
 export function panel(ctx, x, y, w, h, alpha) {
-  ctx.fillStyle = `rgba(20,12,30,${alpha ?? 0.82})`;
+  ctx.fillStyle = `rgba(20,12,30,${alpha ?? 0.76})`;
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, 12);
   ctx.fill();
@@ -324,17 +324,17 @@ export function drawHud(ctx, state) {
     const label = `${words[Math.min(6, day.combo)]} x${day.combo}!`;
     ctx.save();
     ctx.globalAlpha = 0.85 + 0.15 * Math.sin(state.time * 9);
-    fitText(ctx, label, 900, 68, 900);
+    fitText(ctx, label, 720, 44, 900);
     ctx.textAlign = 'center';
     ctx.strokeStyle = 'rgba(24,10,26,0.85)';
-    ctx.lineWidth = 6;
-    ctx.strokeText(label, ARENA.w / 2, ARENA.h - 96);
+    ctx.lineWidth = 5;
+    ctx.strokeText(label, ARENA.w / 2, ARENA.h - 132);
     const shine = ctx.createLinearGradient(ARENA.w / 2 - 300, 0, ARENA.w / 2 + 300, 0);
     shine.addColorStop(0, '#ffe9a8');
     shine.addColorStop(0.55, '#ffb066');
     shine.addColorStop(1, '#6effd6');
     ctx.fillStyle = shine;
-    ctx.fillText(label, ARENA.w / 2, ARENA.h - 96);
+    ctx.fillText(label, ARENA.w / 2, ARENA.h - 132);
     ctx.restore();
     ctx.textAlign = 'left';
   }

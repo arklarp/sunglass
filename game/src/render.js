@@ -631,15 +631,22 @@ export function drawWorldLabels(ctx, state) {
   const { day, yacht, time } = state;
   ctx.font = '700 10px system-ui, sans-serif';
 
-  ctx.fillStyle = '#fff4de';
   ctx.textAlign = 'center';
-  ctx.fillText('YOU', yacht.x, yacht.y - 46);
+  ctx.strokeStyle = 'rgba(16,8,20,0.9)';
+  ctx.lineWidth = 5;
+  ctx.font = '800 16px "DejaVu Sans", "Liberation Sans", Arial, sans-serif';
+  ctx.strokeText('YOU', yacht.x, yacht.y - 62);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('YOU', yacht.x, yacht.y - 62);
   ctx.beginPath();
-  ctx.moveTo(yacht.x, yacht.y - 42);
-  ctx.lineTo(yacht.x - 4, yacht.y - 34);
-  ctx.lineTo(yacht.x + 4, yacht.y - 34);
+  ctx.moveTo(yacht.x, yacht.y - 56);
+  ctx.lineTo(yacht.x - 8, yacht.y - 44);
+  ctx.lineTo(yacht.x + 8, yacht.y - 44);
   ctx.closePath();
   ctx.fill();
+  ctx.strokeStyle = '#1a1020';
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
   for (const port of day.ports) {
     if (!port.lit) continue;
