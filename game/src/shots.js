@@ -119,6 +119,7 @@ export function stageShot(name, ctx) {
       Object.assign(spirit, flags);
     });
 
+    day.ports[2].lit = false;
     state.time = 62.4;
     draw();
     return;

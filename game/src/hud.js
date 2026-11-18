@@ -173,18 +173,18 @@ export function drawHud(ctx, state) {
   if (countOf('reflector')) incoming.push(['reflector', 'REFLECTOR', countOf('reflector'), 'bounces the beam — aim wide', '#7dffb0']);
   if (countOf('splitter')) incoming.push(['splitter', 'SPLITTER', countOf('splitter'), 'splits a path — bridge it', '#ffd166']);
   if (boss) incoming.push(['eater', 'STORM KING', 1, 'eats everything — burn it red', '#c98aff']);
-  const incH = 46 + incoming.length * 40;
-  panel(ctx, 16, leftH + 26, 336, incH);
+  const incH = 42 + Math.min(incoming.length, 3) * 38;
+  panel(ctx, 16, leftH + 26, 300, incH);
   ctx.font = font(13, 800);
   ctx.fillStyle = PALETTE.accent;
   ctx.fillText('INCOMING', 32, leftH + 50);
-  incoming.forEach(([type, name, count, hint, colour], index) => {
-    const y = leftH + 74 + index * 40;
+  incoming.slice(0, 3).forEach(([type, name, count, hint, colour], index) => {
+    const y = leftH + 72 + index * 38;
     spiritIcon(ctx, type, 44, y - 2, colour);
     ctx.font = font(15, 800);
     ctx.fillStyle = '#fff4de';
     ctx.fillText(`${name} ×${count}`, 64, y);
-    fitText(ctx, hint, 264, 12, 600);
+    fitText(ctx, hint, 226, 13, 600);
     ctx.fillStyle = 'rgba(255,244,222,0.62)';
     ctx.fillText(hint, 64, y + 16);
   });
