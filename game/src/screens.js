@@ -384,20 +384,21 @@ export function drawEnd(ctx, state) {
     ? [['R', 'PLAY AGAIN'], ['S', `SAME SEED · ${state.seed}`]]
     : [['R', 'PLAY AGAIN'], ['S', `SAME SEED · ${state.seed}`]];
   buttons.forEach(([key, label], index) => {
-    const w = 260;
-    const x = ARENA.w / 2 - w - 14 + index * (w + 28);
-    const y = cardY + cardH + 26;
-    ctx.fillStyle = index === 0 ? 'rgba(255,214,140,0.24)' : 'rgba(20,12,30,0.85)';
+    const w = 300;
+    const x = ARENA.w / 2 - w - 12 + index * (w + 24);
+    const y = cardY + cardH + 18;
+    // The restart buttons are the loop's proof, so they stay loud even at thumbnail size.
+    ctx.fillStyle = index === 0 ? '#ffcf7a' : 'rgba(28,16,36,0.98)';
     ctx.beginPath();
-    ctx.roundRect(x, y, w, 48, 24);
+    ctx.roundRect(x, y, w, 56, 28);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,226,170,0.6)';
-    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = index === 0 ? '#fff2cf' : 'rgba(255,226,170,0.8)';
+    ctx.lineWidth = 2.4;
     ctx.stroke();
     ctx.textAlign = 'center';
-    ctx.font = font(14, 900);
-    ctx.fillStyle = '#fff4de';
-    ctx.fillText(`${key}   ${label}`, x + w / 2, y + 30);
+    ctx.font = font(17, 900);
+    ctx.fillStyle = index === 0 ? '#2a1408' : '#fff4de';
+    ctx.fillText(`${key}   ${label}`, x + w / 2, y + 35);
   });
   ctx.textAlign = 'left';
   void RELICS;
